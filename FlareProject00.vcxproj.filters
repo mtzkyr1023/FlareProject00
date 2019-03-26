@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\DirectX">
+      <UniqueIdentifier>{4192839a-36eb-424b-be62-0b49b9689101}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Scene">
+      <UniqueIdentifier>{b5a525dd-8fa8-43de-a43a-ec450a0c2817}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\DirectX">
+      <UniqueIdentifier>{9128b756-af9d-42a8-ad55-fd63b2546bd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Scene">
+      <UniqueIdentifier>{2f4a869d-be1b-4999-998d-a2ff10f38494}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\RenderPass">
+      <UniqueIdentifier>{b835a7e6-ab9d-46a7-b208-2056ca6047ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Shader">
+      <UniqueIdentifier>{0b648e16-0646-4126-b736-57e211e619c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Shader">
+      <UniqueIdentifier>{de97c674-d2c4-47b0-96a3-08114a645805}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\RenderPass">
+      <UniqueIdentifier>{fee04b57-b37c-4095-b66c-469e42a0d547}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Shader\ComputeShader">
+      <UniqueIdentifier>{2e0fcccb-7061-45df-9eec-ee9406719ed5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Shader\ComputeShader">
+      <UniqueIdentifier>{077f8e84-a461-458c-b338-0daf13a25e00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Shader\ModelShader">
+      <UniqueIdentifier>{a1929e1c-e763-4bb0-be45-1b2747f88e60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Shader\ModelShader">
+      <UniqueIdentifier>{262efcda-9882-4167-8fa4-76f897a9197f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Resource">
+      <UniqueIdentifier>{1b806070-0f48-4fa8-8702-3fb251c1d475}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Resource\Model">
+      <UniqueIdentifier>{3dc7fe64-899f-441f-b320-2a3e3dff4e7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Resource">
+      <UniqueIdentifier>{03e4c77f-0c74-4db5-b930-5000dbfa7a7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Resource\Model">
+      <UniqueIdentifier>{d7841bc7-7e44-492f-aafd-f5767726c087}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Resource\Buffer">
+      <UniqueIdentifier>{c64fd539-627b-4024-98d6-7d38f8f18550}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Resource\Buffer">
+      <UniqueIdentifier>{4c96d49f-0314-4aad-9396-6eaa65eb0315}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Resource\Object">
+      <UniqueIdentifier>{a24b5c06-6c1b-4423-aa81-aa350b3860c1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameMain.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Device.h">
+      <Filter>ヘッダー ファイル\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="SwapChain.h">
+      <Filter>ヘッダー ファイル\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>ヘッダー ファイル\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPass.h">
+      <Filter>ヘッダー ファイル\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="LastPass.h">
+      <Filter>ヘッダー ファイル\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>ヘッダー ファイル\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="LastCS.h">
+      <Filter>ヘッダー ファイル\Shader\ComputeShader</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelVS.h">
+      <Filter>ヘッダー ファイル\Shader\ModelShader</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelPS.h">
+      <Filter>ヘッダー ファイル\Shader\ModelShader</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelPass.h">
+      <Filter>ヘッダー ファイル\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>ヘッダー ファイル\Resource\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="MatrixBuffer.h">
+      <Filter>ヘッダー ファイル\Resource\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>ヘッダー ファイル\Resource\Object</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameMain.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="WinMain.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Device.cpp">
+      <Filter>ソース ファイル\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapChain.cpp">
+      <Filter>ソース ファイル\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>ソース ファイル\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>ソース ファイル\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="LastCS.cpp">
+      <Filter>ソース ファイル\Shader\ComputeShader</Filter>
+    </ClCompile>
+    <ClCompile Include="LastPass.cpp">
+      <Filter>ソース ファイル\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPass.cpp">
+      <Filter>ソース ファイル\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelVS.cpp">
+      <Filter>ソース ファイル\Shader\ModelShader</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelPS.cpp">
+      <Filter>ソース ファイル\Shader\ModelShader</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelPass.cpp">
+      <Filter>ソース ファイル\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>ソース ファイル\Resource\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="MatrixBuffer.cpp">
+      <Filter>ソース ファイル\Resource\Buffer</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
