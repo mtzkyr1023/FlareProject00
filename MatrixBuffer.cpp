@@ -28,49 +28,49 @@ bool MatrixFactory::Initialize() {
 		return false;
 	}
 
-	bufDesc.ByteWidth = sizeof(XMFLOAT4X4) * INSTANCE_NUM;
-	bufDesc.StructureByteStride = sizeof(XMFLOAT4X4);
-	bufDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-
 	res = m_device->CreateBuffer(&bufDesc, NULL, m_worldBuffer.ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating world matrix buffer.", "MatrixBuffer.cpp", MB_OK);
 		return false;
 	}
 
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-	srvDesc.Buffer.ElementWidth = sizeof(XMFLOAT4X4);
-	srvDesc.Buffer.NumElements = INSTANCE_NUM;
-
-	res = m_device->CreateShaderResourceView(m_worldBuffer.Get(), &srvDesc, m_worldView.ReleaseAndGetAddressOf());
+	res = m_device->CreateBuffer(&bufDesc, NULL, m_vpBuffer.ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating world resource view.", "MatrixBuffer.cpp", MB_OK);
+		MessageBox(NULL, "failed creating world matrix buffer.", "MatrixBuffer.cpp", MB_OK);
+		return false;
+	}
+
+	bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufDesc.ByteWidth = sizeof(XMFLOAT4X4) * 2;
+	bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufDesc.StructureByteStride = 0;
+	bufDesc.MiscFlags = 0;
+
+	res = m_device->CreateBuffer(&bufDesc, NULL, m_shadowBuffer.ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating shadow buffer.", "MatrixBuffer.cpp", MB_OK);
+		return false;
+	}
+
+	D3D11_SUBRESOURCE_DATA initData{};
+
+	XMFLOAT4 timer = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufDesc.ByteWidth = sizeof(XMFLOAT4);
+	bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufDesc.StructureByteStride = 0;
+	bufDesc.MiscFlags = 0;
+	initData.pSysMem = &timer;
+	res = m_device->CreateBuffer(&bufDesc, NULL, m_timerBuffer.ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating time buffer.", "MatrixBuffer.cpp", MB_OK);
 		return false;
 	}
 
 	return true;
 }
-
-
-ComPtr<ID3D11ShaderResourceView> MatrixFactory::GetWorldView(int modelNum) {
-	HRESULT res;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	XMFLOAT4X4* ptr;
-
-	res = m_context->Map(m_viewBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (SUCCEEDED(res)) {
-		ptr = (XMFLOAT4X4*)mappedResource.pData;
-
-		for (int i = 0; i < INSTANCE_NUM; i++) {
-			memcpy_s(ptr++, sizeof(XMFLOAT4X4), m_worldMatrixArray[modelNum][i], sizeof(XMFLOAT4X4));
-		}
-		m_context->Unmap(m_viewBuffer.Get(), 0);
-	}
-
-	return m_worldView;
-}
-
 
 void MatrixFactory::SetViewMatrix(XMFLOAT4X4* matrix) {
 	HRESULT res;
@@ -81,7 +81,7 @@ void MatrixFactory::SetViewMatrix(XMFLOAT4X4* matrix) {
 	if (SUCCEEDED(res)) {
 		ptr = (XMFLOAT4X4*)mappedResource.pData;
 
-		memcpy_s(ptr, sizeof(XMFLOAT4X4), matrix, sizeof(XMFLOAT4X4));
+		XMStoreFloat4x4(ptr, XMMatrixTranspose(XMLoadFloat4x4(matrix)));
 
 		m_context->Unmap(m_viewBuffer.Get(), 0);
 	}
@@ -97,12 +97,69 @@ void MatrixFactory::SetProjMatrix(XMFLOAT4X4* matrix) {
 	if (SUCCEEDED(res)) {
 		ptr = (XMFLOAT4X4*)mappedResource.pData;
 
-		memcpy_s(ptr, sizeof(XMFLOAT4X4), matrix, sizeof(XMFLOAT4X4));
+		XMStoreFloat4x4(ptr, XMMatrixTranspose(XMLoadFloat4x4(matrix)));
 
 		m_context->Unmap(m_projBuffer.Get(), 0);
 	}
 }
 
-void MatrixFactory::SetWorldMatrix(int modelNum, int elemNum, XMFLOAT4X4* matrix) {
-	m_worldMatrixArray[modelNum][elemNum] = matrix;
+void MatrixFactory::SetWorldMatrix(XMFLOAT4X4* matrix) {
+	HRESULT res;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	XMFLOAT4X4* ptr;
+
+	res = m_context->Map(m_worldBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (SUCCEEDED(res)) {
+		ptr = (XMFLOAT4X4*)mappedResource.pData;
+
+		XMStoreFloat4x4(ptr, XMMatrixTranspose(XMLoadFloat4x4(matrix)));
+
+		m_context->Unmap(m_worldBuffer.Get(), 0);
+	}
+}
+
+void MatrixFactory::SetVPMatrix(XMFLOAT4X4* matrix) {
+	HRESULT res;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	XMFLOAT4X4* ptr;
+
+	res = m_context->Map(m_vpBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (SUCCEEDED(res)) {
+		ptr = (XMFLOAT4X4*)mappedResource.pData;
+
+		XMStoreFloat4x4(ptr, XMMatrixTranspose(XMLoadFloat4x4(matrix)));
+
+		m_context->Unmap(m_vpBuffer.Get(), 0);
+	}
+}
+
+void MatrixFactory::SetShadowMatrix(XMFLOAT4X4* view, XMFLOAT4X4* proj) {
+	HRESULT res;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	XMFLOAT4X4* ptr;
+
+	res = m_context->Map(m_shadowBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (SUCCEEDED(res)) {
+		ptr = (XMFLOAT4X4*)mappedResource.pData;
+
+		XMStoreFloat4x4(ptr, XMMatrixTranspose(XMLoadFloat4x4(view)));
+		ptr++;
+		XMStoreFloat4x4(ptr, XMMatrixTranspose(XMLoadFloat4x4(proj)));
+
+		m_context->Unmap(m_shadowBuffer.Get(), 0);
+	}
+}
+
+void MatrixFactory::CountTimer(float time) {
+	HRESULT res;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	XMFLOAT4* ptr;
+
+	res = m_context->Map(m_timerBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (SUCCEEDED(res)) {
+		ptr = (XMFLOAT4*)mappedResource.pData;
+		ptr->x++;
+
+		m_context->Unmap(m_timerBuffer.Get(), 0);
+	}
 }

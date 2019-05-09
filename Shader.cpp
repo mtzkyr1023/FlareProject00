@@ -20,14 +20,14 @@ HRESULT ShaderCompiler::CompileFromFile(LPCWSTR filename, LPCSTR entry_point, LP
 
 #endif
 
-	result = D3DCompileFromFile(filename, NULL, NULL, entry_point, shader_model, shaderFlags, 0, blob_out, error_message);
+	result = D3DCompileFromFile(filename, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry_point, shader_model, shaderFlags, 0, blob_out, error_message);
 
 	return result;
 }
 
 void ShaderCompiler::OutputErrorMessage(ID3DBlob* error_message, const char* folder_name) {
 	char* compileErrors;
-	unsigned long bufferSize, i;
+	size_t bufferSize, i;
 	ofstream ofs;
 	string str = "shader/";
 	str += folder_name;

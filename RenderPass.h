@@ -3,6 +3,7 @@
 
 #define VIEW_NUM 8
 
+#include <memory>
 #include <vector>
 
 #include "Device.h"
@@ -50,11 +51,11 @@ public:
 
 	void SetSrv(int num, ID3D11ShaderResourceView* srv) {
 		m_inputSrv[num] = srv;
-		m_inputSrvNum = num;
+		m_inputSrvNum = num + 1;
 	}
 	void SetUav(int num, ID3D11UnorderedAccessView* uav) {
 		m_inputUav[num] = uav;
-		m_inputUavNum = num;
+		m_inputUavNum = num + 1;
 	}
 
 	ID3D11ShaderResourceView* GetSrv(int num) { return m_outputSrv[num].Get(); }
@@ -65,7 +66,9 @@ public:
 class PassManager {
 private:
 	std::unique_ptr<RenderPass> m_lastPass;
+	std::unique_ptr<RenderPass> m_lightingPass;
 	std::unique_ptr<RenderPass> m_modelPass;
+	std::unique_ptr<RenderPass> m_shadowPass;
 
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height, bool vsync);

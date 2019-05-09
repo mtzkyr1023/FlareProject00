@@ -70,6 +70,45 @@
     <Filter Include="ヘッダー ファイル\Resource\Object">
       <UniqueIdentifier>{a24b5c06-6c1b-4423-aa81-aa350b3860c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソース ファイル\shader">
+      <UniqueIdentifier>{029f4382-8718-4e19-aefa-3d28c6378a20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Resource\Object">
+      <UniqueIdentifier>{fd7c87d4-7780-431d-88d5-72ff8525657e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Resource\Model\Loader">
+      <UniqueIdentifier>{2e8ddb80-4a30-4ebf-b83c-6c23da742ab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Resource\Model\Loader">
+      <UniqueIdentifier>{b4c3b018-6bb8-4da1-bdb0-e1b7e1ba43fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Shader\LightingShader">
+      <UniqueIdentifier>{2ea9205a-9cb6-4066-b2e4-fb0a66bbd2b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Shader\LightingShader">
+      <UniqueIdentifier>{1fc5d976-4c28-4765-b5eb-b681a58e439d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Resource\Model\Material">
+      <UniqueIdentifier>{c76171b4-68dc-4350-8ab3-c11104ffa8ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Resource\Model\Material">
+      <UniqueIdentifier>{f5297e57-e0ec-4cf1-b65c-2722f5de5496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Shader\LastShader">
+      <UniqueIdentifier>{a53d1fec-50f2-4cc5-a646-63740287575c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Shader\LastShader">
+      <UniqueIdentifier>{657f7a5f-24d7-4070-bff4-75645e2a55fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Shader\ShadowShader">
+      <UniqueIdentifier>{af924cea-df6d-4242-a696-febe7141f409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Shader\ShadowShader">
+      <UniqueIdentifier>{512cd5f2-1ae3-4948-aa93-7d852f8ebbde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\ImGui">
+      <UniqueIdentifier>{b827f4d5-14e9-46b6-94f0-5acc58240d36}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameMain.h">
@@ -89,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="LastPass.h">
       <Filter>ヘッダー ファイル\RenderPass</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>ヘッダー ファイル\Shader</Filter>
     </ClInclude>
     <ClInclude Include="LastCS.h">
       <Filter>ヘッダー ファイル\Shader\ComputeShader</Filter>
@@ -113,6 +149,78 @@
     </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>ヘッダー ファイル\Resource\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>ヘッダー ファイル\Resource\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjLoader.h">
+      <Filter>ヘッダー ファイル\Resource\Model\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>ヘッダー ファイル\Resource\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingPass.h">
+      <Filter>ヘッダー ファイル\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="LightingShader.h">
+      <Filter>ヘッダー ファイル\Shader\LightingShader</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>ヘッダー ファイル\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="LightBuffer.h">
+      <Filter>ヘッダー ファイル\Resource\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>ヘッダー ファイル\Resource\Model\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MtlLoader.h">
+      <Filter>ヘッダー ファイル\Resource\Model\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader.h">
+      <Filter>ヘッダー ファイル\Resource\Model\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxLoader.h">
+      <Filter>ヘッダー ファイル\Resource\Model\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="LastShader.h">
+      <Filter>ヘッダー ファイル\Shader\LastShader</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowShader.h">
+      <Filter>ヘッダー ファイル\Shader\ShadowShader</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowPass.h">
+      <Filter>ヘッダー ファイル\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterShader.h">
+      <Filter>ヘッダー ファイル\Shader\ModelShader</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_dx11\imgui.h">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_dx11\imgui_impl_dx11.h">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_dx11\imgui_impl_win32.h">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_dx11\imgui_internal.h">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_dx11\imconfig.h">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_dx11\imstb_textedit.h">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMapShader.h">
+      <Filter>ヘッダー ファイル\Shader\ModelShader</Filter>
+    </ClInclude>
+    <ClInclude Include="CopyCS.h">
+      <Filter>ヘッダー ファイル\Shader\ComputeShader</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_dx11\imstb_rectpack.h">
+      <Filter>リソース ファイル\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +265,72 @@
     </ClCompile>
     <ClCompile Include="MatrixBuffer.cpp">
       <Filter>ソース ファイル\Resource\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>ソース ファイル\Resource\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjLoader.cpp">
+      <Filter>ソース ファイル\Resource\Model\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingShader.cpp">
+      <Filter>ソース ファイル\Shader\LightingShader</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingPass.cpp">
+      <Filter>ソース ファイル\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="LightBuffer.cpp">
+      <Filter>ソース ファイル\Resource\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>ソース ファイル\Resource\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>ソース ファイル\Resource\Model\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="MtlLoader.cpp">
+      <Filter>ソース ファイル\Resource\Model\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader.cpp">
+      <Filter>ソース ファイル\Resource\Model\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="FbxLoader.cpp">
+      <Filter>ソース ファイル\Resource\Model\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowShader.cpp">
+      <Filter>ソース ファイル\Shader\ShadowShader</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowPass.cpp">
+      <Filter>ソース ファイル\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>ソース ファイル\Resource\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="WaterShader.cpp">
+      <Filter>ソース ファイル\Shader\ModelShader</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_dx11\imgui.cpp">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_dx11\imgui_demo.cpp">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_dx11\imgui_draw.cpp">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_dx11\imgui_impl_dx11.cpp">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_dx11\imgui_impl_win32.cpp">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_dx11\imgui_widgets.cpp">
+      <Filter>リソース ファイル\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeMapShader.cpp">
+      <Filter>ソース ファイル\Shader\ModelShader</Filter>
+    </ClCompile>
+    <ClCompile Include="CopyCS.cpp">
+      <Filter>ソース ファイル\Shader\ComputeShader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

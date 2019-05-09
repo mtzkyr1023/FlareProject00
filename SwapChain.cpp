@@ -12,7 +12,7 @@ bool SwapChain::Initialize(HWND hwnd, UINT width, UINT height, UINT msaaCount, b
 	sd.BufferDesc.Width = width;
 	sd.BufferDesc.Height = height;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS;
+	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS | DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.OutputWindow = hwnd;
 	sd.SampleDesc.Count = msaaCount;
 	sd.SampleDesc.Quality = 0;
@@ -57,6 +57,18 @@ bool SwapChain::Initialize(HWND hwnd, UINT width, UINT height, UINT msaaCount, b
 	res = m_device->CreateUnorderedAccessView(tex, &uavDesc, m_uav.ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating back buffer uav.", "SwapChain.cpp", MB_OK);
+		return false;
+	}
+
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc{};
+
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+
+	res = m_device->CreateRenderTargetView(tex, &rtvDesc, m_rtv.ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating back buffer rtv.", "SwapChain.cpp", MB_OK);
 		return false;
 	}
 

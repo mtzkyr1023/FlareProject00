@@ -24,6 +24,19 @@ public:
 
 	virtual void SetShader(UINT shaderType = 0) {
 		m_context->VSSetShader(m_vertexShader.Get(), NULL, 0);
+		m_context->IASetInputLayout(m_layout.Get());
+	}
+};
+
+class GeometryShader : public Shader {
+protected:
+	ComPtr<ID3D11GeometryShader> m_geometryShader;
+
+public:
+	virtual ~GeometryShader() {}
+
+	virtual void SetShader(UINT shaderType = 0) {
+		m_context->GSSetShader(m_geometryShader.Get(), NULL, 0);
 	}
 };
 
@@ -58,7 +71,6 @@ public:
 
 	static void OutputErrorMessage(ID3DBlob* error_message, const char* folder_name);
 };
-
 
 
 #endif

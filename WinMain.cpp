@@ -1,8 +1,14 @@
 #define     NAME    "WINDOW"  //タイトルバーに表示するテキスト
 #include    <windows.h>
+#include "imgui_dx11/imgui.h"
+#include "imgui_dx11/imgui_impl_dx11.h"
+#include "imgui_dx11/imgui_impl_win32.h"
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 512
+#define WINDOW_HEIGHT 512
+
+#define FB_WIDTH 512
+#define FB_HEIGHT 512
 
 #include <Windows.h>
 #include <memory>
@@ -16,8 +22,13 @@ using namespace std;
 LRESULT  CALLBACK   WndProc(HWND, UINT, WPARAM, LPARAM);
 int      WINAPI     WinMain(HINSTANCE, HINSTANCE, LPSTR, int);
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 //Windws イベント用関数
 LRESULT  CALLBACK  WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+		return true;
 
 	//渡された message から、イベントの種類を解析する
 	switch (msg) {
@@ -78,10 +89,10 @@ int  WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	unique_ptr<PassManager> pass(new PassManager());
 	unique_ptr<GameMain> game(new GameMain());
 
-	if (!pass->Initialize(hWnd, WINDOW_WIDTH, WINDOW_HEIGHT, true))
+	if (!pass->Initialize(hWnd, FB_WIDTH, FB_HEIGHT, true))
 		return 0;
 
-	if (!game->Init(hWnd, WINDOW_WIDTH, WINDOW_HEIGHT))
+	if (!game->Init(hWnd, FB_WIDTH, FB_HEIGHT))
 		return 0;
 
 	while (1) {
@@ -93,7 +104,7 @@ int  WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		if (msg.message == WM_QUIT) {
 			break;
 		}
-		else {
+		else {	
 			if (!game->Run())
 				break;
 
@@ -107,5 +118,5 @@ int  WINAPI  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	game.reset();
 
-	return msg.wParam;
+	return (int)msg.wParam;
 }

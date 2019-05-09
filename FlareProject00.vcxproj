@@ -58,9 +58,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="property\Debug32.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="property\Release32.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -69,13 +71,21 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2019.0\include;C:\Users\ohs70299\work_space\DirectXTex;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Autodesk\FBX\FBX SDK\2019.0\lib\vs2015\x86\release;C:\Users\ohs70299\work_space\DirectXTex\Release32;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -94,6 +104,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -115,35 +126,80 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="CopyCS.h" />
+    <ClInclude Include="CubeMapShader.h" />
     <ClInclude Include="Device.h" />
+    <ClInclude Include="FbxLoader.h" />
     <ClInclude Include="GameMain.h" />
+    <ClInclude Include="imgui_dx11\imconfig.h" />
+    <ClInclude Include="imgui_dx11\imgui.h" />
+    <ClInclude Include="imgui_dx11\imgui_impl_dx11.h" />
+    <ClInclude Include="imgui_dx11\imgui_impl_win32.h" />
+    <ClInclude Include="imgui_dx11\imgui_internal.h" />
+    <ClInclude Include="imgui_dx11\imstb_rectpack.h" />
+    <ClInclude Include="imgui_dx11\imstb_textedit.h" />
     <ClInclude Include="LastCS.h" />
     <ClInclude Include="LastPass.h" />
+    <ClInclude Include="LastShader.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightBuffer.h" />
+    <ClInclude Include="LightingPass.h" />
+    <ClInclude Include="LightingShader.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="MatrixBuffer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelPass.h" />
     <ClInclude Include="ModelPS.h" />
     <ClInclude Include="ModelVS.h" />
+    <ClInclude Include="MtlLoader.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShadowPass.h" />
+    <ClInclude Include="ShadowShader.h" />
     <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="WaterShader.h" />
+    <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CopyCS.cpp" />
+    <ClCompile Include="CubeMapShader.cpp" />
     <ClCompile Include="Device.cpp" />
+    <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="GameMain.cpp" />
+    <ClCompile Include="imgui_dx11\imgui.cpp" />
+    <ClCompile Include="imgui_dx11\imgui_demo.cpp" />
+    <ClCompile Include="imgui_dx11\imgui_draw.cpp" />
+    <ClCompile Include="imgui_dx11\imgui_impl_dx11.cpp" />
+    <ClCompile Include="imgui_dx11\imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui_dx11\imgui_widgets.cpp" />
     <ClCompile Include="LastCS.cpp" />
     <ClCompile Include="LastPass.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightBuffer.cpp" />
+    <ClCompile Include="LightingPass.cpp" />
+    <ClCompile Include="LightingShader.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="MatrixBuffer.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelPass.cpp" />
     <ClCompile Include="ModelPS.cpp" />
     <ClCompile Include="ModelVS.cpp" />
+    <ClCompile Include="MtlLoader.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ObjLoader.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShadowPass.cpp" />
+    <ClCompile Include="ShadowShader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="WaterShader.cpp" />
+    <ClCompile Include="WICTextureLoader.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

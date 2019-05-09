@@ -6,9 +6,8 @@
 
 class ModelVS : public VertexShader {
 private:
-	ComPtr<ID3D11ClassLinkage> m_classLinkage;
-	ComPtr<ID3D11ClassInstance> m_staticClass;
-	ComPtr<ID3D11ClassInstance> m_skinnedClass;
+	ComPtr<ID3D11VertexShader> m_vertexSkinnedShader;
+	ComPtr<ID3D11InputLayout> m_skinnedLayout;
 
 public:
 	bool Initialize();

@@ -20,7 +20,7 @@ private:
 
 public:
 	LastPass(HWND hwnd, UINT width, UINT height, UINT msaaCount, bool vsync);
-	~LastPass() {}
+	~LastPass();
 };
 
 

@@ -58,6 +58,9 @@ public:
 
 		return true;
 	}
+
+	static ComPtr<ID3D11Device> GetDevice() { return m_device; }
+	static ComPtr<ID3D11DeviceContext> GetContext() { return m_context; }
 };
 
 
