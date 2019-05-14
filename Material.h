@@ -2,7 +2,6 @@
 #define _MATERIAL_H_
 
 #include <DirectXMath.h>
-#include <DirectXTex.h>
 
 #include "Device.h"
 
