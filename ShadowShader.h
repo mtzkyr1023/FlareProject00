@@ -5,12 +5,12 @@
 
 class ShadowVS : public VertexShader {
 public:
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 class ShadowPS : public PixelShader {
 public:
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 #endif

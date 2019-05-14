@@ -1,7 +1,7 @@
 #include "CopyCS.h"
 
 
-bool CopyCS::Initialize() {
+bool CopyCS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> CSBlob, errorMessage;
 

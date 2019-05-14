@@ -161,6 +161,8 @@
     <ClInclude Include="ShadowPass.h" />
     <ClInclude Include="ShadowShader.h" />
     <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="WaterShader.h" />
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>

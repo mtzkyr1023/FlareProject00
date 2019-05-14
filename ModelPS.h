@@ -6,7 +6,7 @@
 
 class ModelPS : public PixelShader {
 public:
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 

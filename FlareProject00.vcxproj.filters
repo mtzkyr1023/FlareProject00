@@ -109,6 +109,12 @@
     <Filter Include="リソース ファイル\ImGui">
       <UniqueIdentifier>{b827f4d5-14e9-46b6-94f0-5acc58240d36}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Resource\Texture">
+      <UniqueIdentifier>{eecca721-fb33-479c-bc51-d147901e4807}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Texture">
+      <UniqueIdentifier>{e8528ae5-86ce-4817-84af-d9ad43326ac8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameMain.h">
@@ -221,6 +227,12 @@
     </ClInclude>
     <ClInclude Include="imgui_dx11\imstb_rectpack.h">
       <Filter>リソース ファイル\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>ヘッダー ファイル\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>ヘッダー ファイル\Resource\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

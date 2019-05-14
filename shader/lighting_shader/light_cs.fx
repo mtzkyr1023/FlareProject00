@@ -59,9 +59,9 @@ void cs_main(uint3 threadId :  SV_DispatchThreadID, uint3 groupId : SV_GroupID, 
 
 	float4 frustumPlane[6];
 	frustumPlane[0] = c4 - c1;
-	frustumPlane[1] = c1;
+	frustumPlane[1] = c4 + c1;
 	frustumPlane[2] = c4 - c2;
-	frustumPlane[3] = c2;
+	frustumPlane[3] = c4 + c2;
 	frustumPlane[4] = float4(0.0f, 0.0f, 1.0f, -minTileZ);
 	frustumPlane[5] = float4(0.0f, 0.0f, -1.0f, maxTileZ);
 
@@ -115,12 +115,12 @@ void cs_main(uint3 threadId :  SV_DispatchThreadID, uint3 groupId : SV_GroupID, 
 		for (uint tileLightIndex = 0; tileLightIndex < numLights; tileLightIndex++) {
 			PointLight light = g_pointLight[s_tileLightIndices[tileLightIndex]];
 			lightLength = distance(vPos, light.viewPos.xyz);
-			lightLength = rcp(lightLength * lightLength * 2 + lightLength * 2 + 2);
+			lightLength = rcp(lightLength * lightLength * 2 + lightLength * 2 + 1);
 			intensity = saturate(dot(-normalize(vPos - light.viewPos.xyz), normal.xyz));
 			L = normalize(light.viewPos.xyz - vPos);
 			H = normalize(-vPos);
 			H = normalize(L + H);
-			reflection = pow(saturate(dot(normal.xyz, H)), 8.0f);
+			reflection = pow(saturate(dot(normal.xyz, H)), 10.0f);
 			lit += intensity * light.color.rgb * lightLength + light.color.rgb * reflection * lightLength;
 			lit = saturate(lit);
 		}

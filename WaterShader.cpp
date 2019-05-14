@@ -1,7 +1,7 @@
 #include "WaterShader.h"
 
 
-bool WaterVS::Initialize() {
+bool WaterVS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> VSBlob, errorMessage;
 
@@ -35,7 +35,7 @@ bool WaterVS::Initialize() {
 }
 
 
-bool WaterGS::Initialize() {
+bool WaterGS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> GSBlob, errorMessage;
 
@@ -56,7 +56,7 @@ bool WaterGS::Initialize() {
 	return true;
 }
 
-bool WaterPS::Initialize() {
+bool WaterPS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> PSBlob, errorMessage;
 

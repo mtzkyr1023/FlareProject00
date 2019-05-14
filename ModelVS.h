@@ -10,7 +10,7 @@ private:
 	ComPtr<ID3D11InputLayout> m_skinnedLayout;
 
 public:
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 
 	void SetShader(UINT shaderType = 0);
 };

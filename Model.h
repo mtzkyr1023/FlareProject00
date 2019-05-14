@@ -22,7 +22,10 @@ protected:
 	std::vector<UINT> m_indexCount;
 	UINT m_allVertexCount;
 	UINT m_allIndexCount;
-	std::vector<std::string> m_materialName;
+	std::vector<ComPtr<ID3D11ShaderResourceView>> m_diffuseTex;
+	std::vector<DirectX::XMFLOAT4> m_diffuse;
+	std::vector<DirectX::XMFLOAT4> m_ambient;
+	std::vector<DirectX::XMFLOAT4> m_specular;
 	UINT m_stride;
 	UINT m_modelType;
 	int m_meshCount;
@@ -45,7 +48,7 @@ public:
 	virtual void SetBuffer(int num) {
 		UINT offset = 0;
 
-		m_context->IASetVertexBuffers(0, 1, m_vertexBuffer[num].GetAddressOf(), &m_stride, &offset);
+		m_context->IASetVertexBuffers(0, 1, m_vertexBuffer[0].GetAddressOf(), &m_stride, &offset);
 		m_context->IASetIndexBuffer(m_indexBuffer[num].Get(), DXGI_FORMAT_R32_UINT, 0);
 		m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
@@ -62,7 +65,10 @@ public:
 		return m_modelType;
 	}
 
-	const char* GetMaterialName(int num) { return m_materialName[num].c_str(); }
+	ID3D11ShaderResourceView* GetTexture(int num) { return m_diffuseTex[num].Get(); }
+	DirectX::XMFLOAT4* GetDiffuse(int num) { return &m_diffuse[num]; }
+	DirectX::XMFLOAT4* GetAmbient(int num) { return &m_ambient[num]; }
+	DirectX::XMFLOAT4* GetSpecular(int num) { return &m_specular[num]; }
 
 	int GetMeshCount() { return m_meshCount; }
 };

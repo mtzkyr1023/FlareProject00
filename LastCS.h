@@ -9,7 +9,7 @@ public:
 	LastCS() {}
 	~LastCS() {}
 
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 #endif

@@ -37,7 +37,7 @@ bool LightBufferFactory::Initialize() {
 	initData.SysMemPitch = 0;
 	initData.SysMemSlicePitch = 0;
 
-	res = m_device->CreateBuffer(&bufDesc, &initData, m_lightBuffer.GetAddressOf());
+	res = m_device->CreateBuffer(&bufDesc, &initData, m_pointBuffer.GetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating light buffer.", "LightBuffer.cpp", MB_OK);
 		return false;
@@ -50,7 +50,7 @@ bool LightBufferFactory::Initialize() {
 	srvDesc.Buffer.FirstElement = 0;
 	srvDesc.Buffer.ElementOffset = 0;
 
-	res = m_device->CreateShaderResourceView(m_lightBuffer.Get(), &srvDesc, m_lightSrv.GetAddressOf());
+	res = m_device->CreateShaderResourceView(m_pointBuffer.Get(), &srvDesc, m_pointSrv.GetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating light srv.", "LightBuffer.cpp", MB_OK);
 		return false;
@@ -62,7 +62,7 @@ bool LightBufferFactory::Initialize() {
 	uavDesc.Buffer.FirstElement = 0;
 	uavDesc.Buffer.Flags = 0;
 
-	res = m_device->CreateUnorderedAccessView(m_lightBuffer.Get(), &uavDesc, m_lightUav.GetAddressOf());
+	res = m_device->CreateUnorderedAccessView(m_pointBuffer.Get(), &uavDesc, m_pointUav.GetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating light uav.", "LightBuffer.cpp", MB_OK);
 		return false;

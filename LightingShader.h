@@ -8,7 +8,7 @@ public:
 	LightCullShader() {}
 	~LightCullShader() {}
 
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 
@@ -17,7 +17,7 @@ public:
 	LightingShader() {}
 	~LightingShader() {}
 
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 #endif

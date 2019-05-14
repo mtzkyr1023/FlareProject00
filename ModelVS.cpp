@@ -1,6 +1,6 @@
 #include "ModelVS.h"
 
-bool ModelVS::Initialize() {
+bool ModelVS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> VSBlob, errorMessage;
 

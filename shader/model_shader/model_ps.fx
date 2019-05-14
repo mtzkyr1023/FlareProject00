@@ -1,6 +1,13 @@
 Texture2D tex : register(t0);
 Texture2D<float> shadowTex : register(t1);
 SamplerState SampleType : register(s0);
+SamplerState SampleType2 : register(s1);
+
+cbuffer MaterialBuffer : register(b0) {
+	float4 diffuse;
+	float4 ambient;
+	float4 specular;
+}
 
 struct PS_IN {
 	float4 pos : SV_POSITION;
@@ -28,7 +35,7 @@ PS_OUT ps_main(PS_IN input) {
 	shadowUV.x = (1.0f + (input.shadowPos.x)) * 0.5f;
 	shadowUV.y = (1.0f + (input.shadowPos.y)) * -0.5f;
 
-	float depth = shadowTex.Sample(SampleType, shadowUV);
+	float depth = shadowTex.Sample(SampleType2, shadowUV);
 
 
 	float realZ = input.shadowPos.z;
@@ -40,7 +47,13 @@ PS_OUT ps_main(PS_IN input) {
 		depth = 1.0f;
 	}
 
-	output.color = tex.Sample(SampleType, input.tex) * intensity * depth;
+//	output.color = texColor;
+
+//	output.color = saturate(diffuse * intensity * depth + texColor);
+
+	output.color = ambient + diffuse * intensity * depth;
+
+//	output.color = diffuse;
 
 	output.normal = float4(input.nor, input.linearZ);
 	return output;

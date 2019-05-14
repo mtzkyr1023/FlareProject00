@@ -1,10 +1,11 @@
 
 #define RAY_NUM 30
+#define NOISE_POWER 50000
 
 float3 mod(float3 a, float b) { return a-b*floor(a/b); }
 
 float noise(float2 seed) {
-    return frac(sin(dot(seed.xy, float2(12.9898, 78.233))) * 43758.5453);
+    return frac(sin(dot(seed.xy, seed.yx)) * NOISE_POWER);
 //	return frac(sin(seed.x * seed.y));
 }
 
@@ -52,15 +53,16 @@ PS_OUT ps_main(PS_IN input) {
 		vpPos.y = (1.0f - (vpPos.y)) * 0.5f;
 		float gbufDepth = g_depth.Sample(samplerType, vpPos.xy);
 		if (vpPos.z - gbufDepth > 0.0f && vpPos.z - gbufDepth < thicness) {
-			color += g_color.Sample(samplerType, vpPos.xy) * 2.0f;
+			color += g_color.Sample(samplerType, vpPos.xy);
+			break;
 		}
 		
-//		if (i == RAY_NUM) {
-//			color += cubeMap.Sample(samplerType, vReflect);
-//		}
+		if (i == RAY_NUM) {
+			color += cubeMap.Sample(samplerType, vReflect);
+		}
 	}
 	
-	color /= RAY_NUM * 0.5f;
+	color *= rcp(RAY_NUM) * 4.0f;
 	
 	float intensity = dot(input.wnor, normalize(float3(1.0f, 1.0f, 1.0f))) * 0.5f + 0.5f;
 	intensity *= intensity;
@@ -68,7 +70,7 @@ PS_OUT ps_main(PS_IN input) {
 	
 	
 //	output.color = float4(float3(1.0f, 1.0f, 1.0f) * intensity * color.rgb, 0.25f);
-	output.color = float4(color.rgb, 1.0f);
+	output.color = float4(color.rgb + float3(0.0f, 0.0f, 0.3f) * intensity, 1.0f);
 	output.normal = float4(input.nor, input.linearZ);
 	
 	return output;

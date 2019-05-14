@@ -49,4 +49,15 @@ public:
 	ComPtr<ID3D11ShaderResourceView> GetTexture() { return m_texture; }
 };
 
+
+class MaterialPBR {
+private:
+	DirectX::XMFLOAT4 m_albedo;
+	float m_metalnes;
+	float m_roughness;
+
+
+};
+
+
 #endif

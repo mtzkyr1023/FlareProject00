@@ -1,6 +1,6 @@
 #include "LastCS.h"
 
-bool LastCS::Initialize() {
+bool LastCS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT result;
 	ComPtr<ID3DBlob> CSBlob, errorMessage;
 

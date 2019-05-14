@@ -10,7 +10,7 @@
 
 class Shader : public DeviceUser {
 public:
-	virtual bool Initialize() = 0;
+	virtual bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0) = 0;
 	virtual void SetShader(UINT shaderType = 0) = 0;
 };
 
@@ -21,6 +21,8 @@ protected:
 
 public:
 	virtual ~VertexShader() {}
+
+	virtual bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 
 	virtual void SetShader(UINT shaderType = 0) {
 		m_context->VSSetShader(m_vertexShader.Get(), NULL, 0);
@@ -35,6 +37,8 @@ protected:
 public:
 	virtual ~GeometryShader() {}
 
+	virtual bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
+
 	virtual void SetShader(UINT shaderType = 0) {
 		m_context->GSSetShader(m_geometryShader.Get(), NULL, 0);
 	}
@@ -47,6 +51,8 @@ protected:
 public:
 	virtual ~PixelShader() {}
 
+	virtual bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
+
 	virtual void SetShader(UINT shaderType = 0) {
 		m_context->PSSetShader(m_pixelShader.Get(), NULL, 0);
 	}
@@ -58,6 +64,8 @@ protected:
 
 public:
 	virtual ~ComputeShader() {}
+
+	virtual bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 
 	virtual void SetShader(UINT shaderType = 0) {
 		m_context->CSSetShader(m_computeShader.Get(), NULL, 0);

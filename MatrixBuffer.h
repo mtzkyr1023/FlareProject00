@@ -14,6 +14,7 @@ private:
 	ComPtr<ID3D11Buffer> m_worldBuffer;
 	ComPtr<ID3D11Buffer> m_shadowBuffer;
 	ComPtr<ID3D11Buffer> m_timerBuffer;
+	ComPtr<ID3D11Buffer> m_materialBuffer;
 
 public:
 	bool Initialize();
@@ -24,12 +25,15 @@ public:
 	ComPtr<ID3D11Buffer> GetWorldBuffer() { return m_worldBuffer; }
 	ComPtr<ID3D11Buffer> GetShadowBuffer() { return m_shadowBuffer; }
 	ComPtr<ID3D11Buffer> GetTimeBuffer() { return m_timerBuffer; }
+	ComPtr<ID3D11Buffer> GetMaterialBuffer() { return m_materialBuffer; }
 
 	void SetViewMatrix(DirectX::XMFLOAT4X4* matrix);
 	void SetProjMatrix(DirectX::XMFLOAT4X4* matrix);
 	void SetWorldMatrix(DirectX::XMFLOAT4X4* matrix);
 	void SetVPMatrix(DirectX::XMFLOAT4X4* matrix);
 	void CountTimer(float time);
+
+	void SetMaterial(DirectX::XMFLOAT4* diffuse, DirectX::XMFLOAT4* ambient, DirectX::XMFLOAT4* specular);
 
 	void SetShadowMatrix(DirectX::XMFLOAT4X4* view, DirectX::XMFLOAT4X4* proj);
 

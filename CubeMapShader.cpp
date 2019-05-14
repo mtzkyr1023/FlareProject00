@@ -1,7 +1,7 @@
 #include "CubeMapShader.h"
 using namespace std;
 
-bool CubeMapVS::Initialize() {
+bool CubeMapVS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> VSBlob, errorMessage;
 
@@ -36,7 +36,7 @@ bool CubeMapVS::Initialize() {
 }
 
 
-bool CubeMapPS::Initialize() {
+bool CubeMapPS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> PSBlob, errorMessage;
 

@@ -27,6 +27,9 @@ bool ModelPass::InitPass() {
 	m_cubemapvs = make_unique<CubeMapVS>();
 	m_cubemapps = make_unique<CubeMapPS>();
 	m_copycs = make_unique<CopyCS>();
+	m_expvs = make_unique<VertexShader>();
+	m_expgs = make_unique<GeometryShader>();
+	m_expps = make_unique<PixelShader>();
 
 	if (!m_vs->Initialize())
 		return false;
@@ -44,6 +47,13 @@ bool ModelPass::InitPass() {
 	if (!m_cubemapvs->Initialize())
 		return false;
 	if (!m_cubemapps->Initialize())
+		return false;
+
+	if (!m_expvs->Initialize(L"shader/explosion_shader/explosion_vs.fx","vs_main"))
+		return false;
+	if (!m_expgs->Initialize(L"shader/explosion_shader/explosion_gs.fx", "gs_main"))
+		return false;
+	if (!m_expps->Initialize(L"shader/explosion_shader/explosion_ps.fx", "ps_main"))
 		return false;
 
 	if (!m_copycs->Initialize())
@@ -79,10 +89,11 @@ bool ModelPass::InitPass() {
 	m_projBuffer = MatrixFactory::Inst().GetProjBuffer();
 	m_vpBuffer = MatrixFactory::Inst().GetViewProjBuffer();
 	m_timeBuffer = MatrixFactory::Inst().GetTimeBuffer();
+	m_materialBuffer = MatrixFactory::Inst().GetMaterialBuffer();
 
 	m_shadowBuffer = MatrixFactory::Inst().GetShadowBuffer();
 
-	ModelFactory::Inst().CreateStaticModel("res/model/corn.obj", 0);
+	ModelFactory::Inst().CreateStaticModel("res/model/monkey_flat.obj", 0);
 	ModelFactory::Inst().CreateStaticModel("res/model/sphere.obj", 1);
 	ModelFactory::Inst().CreateStaticModel("res/model/Cube.obj", 2);
 	ModelFactory::Inst().CreateStaticModel("res/model/water.obj", 3);
@@ -108,8 +119,6 @@ bool ModelPass::Rendering() {
 		m_rtv[NORMAL_TEX].Get(),
 	};
 
-	m_inputSrv[0] = m_material.GetTexture().Get();
-
 	for (int i = 0; i < ARRAYSIZE(rtvArray); i++)
 		m_context->ClearRenderTargetView(rtvArray[i], color);
 	m_context->ClearDepthStencilView(m_dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -118,8 +127,6 @@ bool ModelPass::Rendering() {
 
 	m_context->RSSetState(m_rasterState.Get());
 	m_context->RSSetViewports(1, &m_viewport);
-
-	m_ps->SetShader();
 
 
 	MatrixFactory::Inst().SetViewMatrix(m_camera.GetViewMatrix());
@@ -133,66 +140,74 @@ bool ModelPass::Rendering() {
 	m_context->PSSetSamplers(0, 1, m_wrapSampler.GetAddressOf());
 	m_context->PSSetSamplers(1, 1, m_clampSampler.GetAddressOf());
 
+
 	list<ModelObject*>& objList = ModelObjectManager::Inst().GetObjectArray();
 	vector<shared_ptr<Model>>& modelArray = ModelFactory::Inst().GetModelArray();
-	static float rot1, rot2;
-	rot1 += 0.01f;
-	rot2 += 0.03f;
+	static float rot1, rot2, timer;
+	static bool state;
+	rot1 += 0.0f;
+	rot2 += 0.0f;
 //	XMStoreFloat4x4(m_obj1->GetMatrix(), XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(0.0f, 0.1f, 0.0f));
-	XMStoreFloat4x4(m_obj1->GetMatrix(), XMMatrixScaling(1.25f, 1.25f, 1.25f) * XMMatrixTranslation(0.0f, 2.1f, 0.0f));
+	XMStoreFloat4x4(m_obj1->GetMatrix(), XMMatrixScaling(1.25f, 1.25f, 1.25f) *
+		XMMatrixRotationX(rot1) * XMMatrixRotationY(rot2) *
+		XMMatrixTranslation(0.0f, 2.1f, 0.0f));
 //	XMStoreFloat4x4(m_obj2->GetMatrix(), XMMatrixScaling(25.0f, 0.01f, 25.0f) * XMMatrixTranslation(0.0f, 0.0, 0.0f));
 	XMStoreFloat4x4(m_obj2->GetMatrix(), XMMatrixTranslation(-3.0f, 2.0, 0.0f));
 	XMStoreFloat4x4(m_obj3->GetMatrix(), XMMatrixTranslation(3.0f, 1.08f, 0.0f));
 
-	MatrixFactory::Inst().CountTimer(0.0f);
+	MatrixFactory::Inst().CountTimer(timer);
 
 	MatrixFactory::Inst().SetWorldMatrix(m_obj1->GetMatrix());
 	if (!modelArray[m_obj1->GetModelId()])
 		return false;
 
-	m_vs->SetShader();
-
-	for (int i = 0; i < modelArray[m_obj1->GetModelId()]->GetMeshCount(); i++) {
-		modelArray[m_obj1->GetModelId()]->SetBuffer(i);
-		m_context->VSSetConstantBuffers(2, 1, m_worldBuffer.GetAddressOf());
-		m_context->DrawIndexed(modelArray[m_obj1->GetModelId()]->GetIndexCount(i), 0, 0);
+	if (GetAsyncKeyState('E')) {
+		m_obj1->SetModelStatus(ModelObject::EXPLOSION);
+		state = true;
+	}
+	if (GetAsyncKeyState('R')) {
+		m_obj1->SetModelStatus(ModelObject::NORMAL);
+		state = false;
 	}
 
-	MatrixFactory::Inst().SetWorldMatrix(m_obj2->GetMatrix());
-	if (!modelArray[m_obj2->GetModelId()])
-		return false;
+	if (state)
+		timer++;
+	else
+		timer = 0;
 
-	for (int i = 0; i < modelArray[m_obj2->GetModelId()]->GetMeshCount(); i++) {
-		modelArray[m_obj2->GetModelId()]->SetBuffer(i);
-		m_context->VSSetConstantBuffers(2, 1, m_worldBuffer.GetAddressOf());
-		m_context->DrawIndexed(modelArray[m_obj2->GetModelId()]->GetIndexCount(i), 0, 0);
-	}
-
-	MatrixFactory::Inst().SetWorldMatrix(m_obj3->GetMatrix());
-	if (!modelArray[m_obj3->GetModelId()])
-		return false;
-
-
-	m_vs->SetShader(1);
-
-	for (int i = 0; i < modelArray[m_obj3->GetModelId()]->GetMeshCount(); i++) {
-		modelArray[m_obj3->GetModelId()]->SetBuffer(i);
-		m_context->VSSetConstantBuffers(2, 1, m_worldBuffer.GetAddressOf());
-		m_context->DrawIndexed(modelArray[m_obj3->GetModelId()]->GetIndexCount(i), 0, 0);
-	}
-
-/*	for (auto ite : objList) {
-//		MatrixFactory::Inst().SetWorldMatrix(ite->GetMatrix());
-		MatrixFactory::Inst().SetWorldMatrix(&world);
+	for (auto ite : objList) {
+		MatrixFactory::Inst().SetWorldMatrix(ite->GetMatrix());
 		if (!modelArray[ite->GetModelId()])
 			continue;
-
+		if (ite->GetStatus() == ModelObject::EXPLOSION) {
+			m_expvs->SetShader();
+			m_expgs->SetShader();
+			m_expps->SetShader();
+			m_context->VSSetConstantBuffers(0, 1, m_worldBuffer.GetAddressOf());
+			m_context->GSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
+			m_context->GSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
+			m_context->GSSetConstantBuffers(2, 1, m_timeBuffer.GetAddressOf());
+		}
+		else {
+			m_vs->SetShader();
+			m_ps->SetShader();
+			m_context->GSSetShader(NULL, 0, 0);
+			m_context->VSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
+			m_context->VSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
+		}
 		for (int i = 0; i < modelArray[ite->GetModelId()]->GetMeshCount(); i++) {
+			MatrixFactory::Inst().SetMaterial(
+				modelArray[ite->GetModelId()]->GetDiffuse(i),
+				modelArray[ite->GetModelId()]->GetAmbient(i),
+				modelArray[ite->GetModelId()]->GetSpecular(i));
+			m_inputSrv[0] = modelArray[ite->GetModelId()]->GetTexture(i);
+			m_context->PSSetShaderResources(0, m_inputSrvNum, m_inputSrv);
+			m_context->PSSetConstantBuffers(0, 1, m_materialBuffer.GetAddressOf());
 			modelArray[ite->GetModelId()]->SetBuffer(i);
 			m_context->VSSetConstantBuffers(2, 1, m_worldBuffer.GetAddressOf());
 			m_context->DrawIndexed(modelArray[ite->GetModelId()]->GetIndexCount(i), 0, 0);
 		}
-	}*/
+	}
 
 	m_camera.Run();
 
@@ -232,7 +247,7 @@ bool ModelPass::Rendering() {
 	m_context->PSSetSamplers(0, 1, m_clampSampler.GetAddressOf());
 
 	m_context->RSSetState(m_rasterState.Get());
-	m_context->RSSetViewports(1, &m_viewport);
+	m_context->RSSetViewports(1, &m_vp);
 
 	m_context->GSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
 	m_context->GSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
@@ -467,6 +482,12 @@ bool ModelPass::InitRasterState() {
 	m_viewport.MinDepth = 0.0f;
 	m_viewport.TopLeftX = 0.0f;
 	m_viewport.TopLeftY = 0.0f;
+	m_vp.Width = (float)m_width;
+	m_vp.Height = (float)m_height;
+	m_vp.MaxDepth = 1.0f;
+	m_vp.MinDepth = 0.0f;
+	m_vp.TopLeftX = 0.0f;
+	m_vp.TopLeftY = 0.0f;
 
 	return true;
 }

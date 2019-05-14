@@ -1,6 +1,6 @@
 #include "ModelPS.h"
 
-bool ModelPS::Initialize() {
+bool ModelPS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> PSBlob, errorMessage;
 

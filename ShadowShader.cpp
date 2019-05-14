@@ -1,7 +1,7 @@
 #include "ShadowShader.h"
 
 
-bool ShadowVS::Initialize() {
+bool ShadowVS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> VSBlob, errorMessage;
 
@@ -34,7 +34,7 @@ bool ShadowVS::Initialize() {
 }
 
 
-bool ShadowPS::Initialize() {
+bool ShadowPS::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> PSBlob, errorMessage;
 

@@ -3,6 +3,7 @@
 #define OFFSET_POS 0
 #define OFFSET_NOR 12
 #define OFFSET_TEX 24
+#define OFFSET_INDEX 4
 
 ByteAddressBuffer srcVBuffer : register(t0);
 ByteAddressBuffer srcIBuffer : register(t1);

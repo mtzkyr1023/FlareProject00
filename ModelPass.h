@@ -33,6 +33,10 @@ private:
 	std::unique_ptr<VertexShader> m_cubemapvs;
 	std::unique_ptr<PixelShader> m_cubemapps;
 
+	std::unique_ptr<VertexShader> m_expvs;
+	std::unique_ptr<GeometryShader> m_expgs;
+	std::unique_ptr<PixelShader> m_expps;
+
 	std::unique_ptr<ComputeShader> m_copycs;
 
 	ComPtr<ID3D11RenderTargetView> m_rtv[VIEW_NUM];
@@ -50,12 +54,14 @@ private:
 
 	ComPtr<ID3D11RasterizerState> m_rasterState;
 	D3D11_VIEWPORT m_viewport;
+	D3D11_VIEWPORT m_vp;
 
 	ComPtr<ID3D11Buffer> m_worldBuffer;
 	ComPtr<ID3D11Buffer> m_viewBuffer;
 	ComPtr<ID3D11Buffer> m_projBuffer;
 	ComPtr<ID3D11Buffer> m_vpBuffer;
 	ComPtr<ID3D11Buffer> m_timeBuffer;
+	ComPtr<ID3D11Buffer> m_materialBuffer;
 
 	ComPtr<ID3D11Buffer> m_shadowBuffer;
 

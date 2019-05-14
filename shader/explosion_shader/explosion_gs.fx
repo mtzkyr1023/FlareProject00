@@ -1,13 +1,13 @@
 
-cbuffer ViewMatrix : register(b1) {
+cbuffer ViewMatrix : register(b0) {
 	matrix g_view;
 }
 
-cbuffer ProjMatrix : register(b2) {
+cbuffer ProjMatrix : register(b1) {
 	matrix g_proj;
 }
 
-cbuffer Timer : register(b3) {
+cbuffer Timer : register(b2) {
 	float g_timer : packoffset(c0);
 };
 
@@ -15,7 +15,7 @@ struct GS_IN {
 	float4 pos : POSITION0;
 	float3 nor : NORMAL0;
 	float2 tex : TECOORD0;
-}
+};
 
 struct GS_OUT {
 	float4 pos : SV_POSITION;
@@ -27,47 +27,49 @@ struct GS_OUT {
 
 
 [maxvertexcount(3)]
-void ga_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> output,
+void gs_main(triangle GS_IN input[3], inout TriangleStream<GS_OUT> output,
 			uint id : SV_PrimitiveID) {
-	GS_OUT output = (GS_OUT)0;
-	float3 center = (input[0].xyz + input[1].xyz + input[2].xyz) / 3;
-	float4x4 matrixt[3];
+	GS_OUT tmp = (GS_OUT)0;
+	float3 center = (input[0].pos.xyz + input[1].pos.xyz + input[2].pos.xyz) / 3;
+	float4x4 mat[3];
+	float timer = g_timer * 0.05f;
 	
-	matrix[0] = float4x4(
+	mat[0] = float4x4(
 		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, cos(g_timer), -sin(g_timer), 0.0f,
-		0.0f, sin(g_timer), cos(g_timer), 0.0f,
+		0.0f, cos(timer), -sin(timer), 0.0f,
+		0.0f, sin(timer), cos(timer), 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
 		
-	matrix[1] = float4x4(
-		cos(g_timer), 0.0f, sin(g_timer), 0.0f,
+	mat[1] = float4x4(
+		cos(timer), 0.0f, sin(timer), 0.0f,
 		0.0f, 1.0f, 0.0f, 0.0f,
-		-sin(g_timer), 0.0f, cos(g_timer), 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f)
+		-sin(timer), 0.0f, cos(timer), 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
 		
-	matrix[2] = float4x4(
-		cos(g_timer), -sin(g_timer), 0.0f, 0.0f,
-		sin(g_timer), cos(g_timer), 0.0f, 0.0f,
+	mat[2] = float4x4(
+		cos(timer), -sin(timer), 0.0f, 0.0f,
+		sin(timer), cos(timer), 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f)
+		0.0f, 0.0f, 0.0f, 1.0f);
 	
 	[unroll]
 	for (int i = 0; i < 3; i++) {
-		output.pos. = input[i].pos - float4(center, 0);
+		tmp.pos = input[i].pos - float4(center, 0);
 		
-		output.pos = mul(output.pos, matrix[id]);
-		output.pos += float4(center, 0);
+		tmp.pos = mul(tmp.pos, mat[id % 3]);
+		tmp.pos += float4(center, 0);
+		tmp.pos.xyz += input[i].nor * g_timer * 0.01f;
 		
-		output.pos = mul(output.pos, g_view);
-		output.linerZ = output.pos.z;
-		output.pos = mul(output.pos, g_proj);
+		tmp.pos = mul(tmp.pos, g_view);
+		tmp.linearZ = tmp.pos.z;
+		tmp.pos = mul(tmp.pos, g_proj);
 		
-		output.wnor = input[i].nor;
-		output.nor = normalize(output.wnor, (float3x3)g_view);
+		tmp.wnor = input[i].nor;
+		tmp.nor = normalize(mul(tmp.wnor, (float3x3)g_view));
 		
-		output.tex = input.tex;
+		tmp.tex = input[i].tex;
 		
-		output.Append(output);
+		output.Append(tmp);
 	}
 	
 	output.RestartStrip();

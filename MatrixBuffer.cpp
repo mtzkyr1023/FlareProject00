@@ -63,7 +63,19 @@ bool MatrixFactory::Initialize() {
 	bufDesc.StructureByteStride = 0;
 	bufDesc.MiscFlags = 0;
 	initData.pSysMem = &timer;
-	res = m_device->CreateBuffer(&bufDesc, NULL, m_timerBuffer.ReleaseAndGetAddressOf());
+	res = m_device->CreateBuffer(&bufDesc, &initData, m_timerBuffer.ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating time buffer.", "MatrixBuffer.cpp", MB_OK);
+		return false;
+	}
+
+	bufDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bufDesc.ByteWidth = sizeof(XMFLOAT4) * 3;
+	bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufDesc.StructureByteStride = 0;
+	bufDesc.MiscFlags = 0;
+	res = m_device->CreateBuffer(&bufDesc, NULL, m_materialBuffer.ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating time buffer.", "MatrixBuffer.cpp", MB_OK);
 		return false;
@@ -150,7 +162,7 @@ void MatrixFactory::SetShadowMatrix(XMFLOAT4X4* view, XMFLOAT4X4* proj) {
 	}
 }
 
-void MatrixFactory::CountTimer(float time) {
+void MatrixFactory::CountTimer(float timer) {
 	HRESULT res;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	XMFLOAT4* ptr;
@@ -158,8 +170,32 @@ void MatrixFactory::CountTimer(float time) {
 	res = m_context->Map(m_timerBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (SUCCEEDED(res)) {
 		ptr = (XMFLOAT4*)mappedResource.pData;
-		ptr->x++;
+		ptr->x = timer;
 
 		m_context->Unmap(m_timerBuffer.Get(), 0);
 	}
+}
+
+void MatrixFactory::SetMaterial(DirectX::XMFLOAT4* diffuse, DirectX::XMFLOAT4* ambient, DirectX::XMFLOAT4* specular) {
+	HRESULT res;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	struct MaterialType {
+		XMFLOAT4 dif;
+		XMFLOAT4 amb;
+		XMFLOAT4 spe;
+	};
+	MaterialType* ptr;
+
+	res = m_context->Map(m_materialBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (SUCCEEDED(res)) {
+		ptr = (MaterialType*)mappedResource.pData;
+		ptr->dif = *diffuse;
+		ptr->amb = *ambient;
+		ptr->spe = *specular;
+
+		m_context->Unmap(m_materialBuffer.Get(), 0);
+	}
+	else
+		MessageBox(NULL, "failed map material.", "Material", MB_OK);
+
 }

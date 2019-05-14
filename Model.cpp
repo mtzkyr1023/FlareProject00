@@ -7,13 +7,47 @@ using namespace DirectX;
 
 bool Model::Initialize(const char* filename) {
 	ObjLoader loader;
+	ObjLoaderKai loader2;
 
-	vector<unique_ptr<Vertex[]>> vertex;
+	unique_ptr<Vertex[]> vertex;
 	vector<unique_ptr<int[]>> index;
 
 	bool smoothFlag;
 
-	if (!loader.ReadFile(filename)) {
+	if (!loader2.ReadFile(filename))
+		return false;
+
+	m_meshCount = loader2.GetSubsetCount();
+	index.resize(m_meshCount);
+	m_diffuse.resize(m_meshCount);
+	m_diffuseTex.resize(m_meshCount);
+	m_ambient.resize(m_meshCount);
+	m_specular.resize(m_meshCount);
+
+	m_vertexCount.push_back(loader2.GetVertexCount());
+	vertex.reset(new Vertex[m_vertexCount[0]]);
+	for (int i = 0; i < (int)m_vertexCount[0]; i++) {
+		vertex[i].pos = loader2.GetPos()[i];
+		vertex[i].nor = loader2.GetNor()[i];
+		vertex[i].tex = loader2.GetTex()[i];
+	}
+
+	for (int i = 0; i < m_meshCount; i++) {
+		m_indexCount.push_back(loader2.GetIndexCount(i));
+
+		index[i].reset(new int[m_indexCount[i]]);
+
+		for (int j = 0; j < (int)m_indexCount[i]; j++) {
+			index[i][j] = loader2.GetIndex(i)[j];
+		}
+
+		m_diffuse[i] = loader2.GetDiffuse(i);
+		m_ambient[i] = loader2.GetAmbient(i);
+		m_specular[i] = loader2.GetSpecular(i);
+		m_diffuseTex[i] = loader2.GetTexture(i);
+	}
+
+/*	if (!loader.ReadFile(filename)) {
 		m_meshCount = 1;
 		vertex.resize(m_meshCount);
 		index.resize(m_meshCount);
@@ -118,10 +152,10 @@ bool Model::Initialize(const char* filename) {
 			if (tex.size() != 1)
 				offsetTex += (int)tex.size();
 		}
-	}
+	}*/
 
 	for (int i = 0; i < m_meshCount; i++) {
-		m_allVertexCount += m_vertexCount[i];
+//		m_allVertexCount += m_vertexCount[i];
 		m_allIndexCount += m_indexCount[i];
 	}
 
@@ -132,25 +166,26 @@ bool Model::Initialize(const char* filename) {
 	m_vertexBuffer.resize(m_meshCount);
 	m_indexBuffer.resize(m_meshCount);
 
+	for (int i = 0; i < m_vertexCount[0]; i++) {
+		XMStoreFloat3(&vertex[i].nor, XMVector3Normalize(XMLoadFloat3(&vertex[i].nor)));
+	}
+
+	bufDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufDesc.ByteWidth = sizeof(Vertex) * m_vertexCount[0];
+	bufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufDesc.CPUAccessFlags = 0;
+	bufDesc.StructureByteStride = 0;
+	bufDesc.MiscFlags = 0;
+
+	initData.pSysMem = vertex.get();
+
+	res = m_device->CreateBuffer(&bufDesc, &initData, m_vertexBuffer[0].GetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating static model.", "Model.cpp", MB_OK);
+		return false;
+	}
+
 	for (int i = 0; i < m_meshCount; i++) {
-		for (UINT j = 0; j < m_vertexCount[i]; j++) {
-			XMStoreFloat3(&vertex[i][j].nor, XMVector3Normalize(XMLoadFloat3(&vertex[i][j].nor)));
-		}
-
-		bufDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufDesc.ByteWidth = sizeof(Vertex) * m_vertexCount[i];
-		bufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bufDesc.CPUAccessFlags = 0;
-		bufDesc.StructureByteStride = 0;
-		bufDesc.MiscFlags = 0;
-
-		initData.pSysMem = vertex[i].get();
-
-		res = m_device->CreateBuffer(&bufDesc, &initData, m_vertexBuffer[i].GetAddressOf());
-		if (FAILED(res)) {
-			MessageBox(NULL, "failed creating static model.", "Model.cpp", MB_OK);
-			return false;
-		}
 
 		bufDesc.Usage = D3D11_USAGE_DEFAULT;
 		bufDesc.ByteWidth = sizeof(int) * m_indexCount[i];

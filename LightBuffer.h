@@ -8,16 +8,16 @@
 
 class LightBufferFactory : public DeviceUser {
 private:
-	ComPtr<ID3D11Buffer> m_lightBuffer;
-	ComPtr<ID3D11ShaderResourceView> m_lightSrv;
-	ComPtr<ID3D11UnorderedAccessView> m_lightUav;
+	ComPtr<ID3D11Buffer> m_pointBuffer;
+	ComPtr<ID3D11ShaderResourceView> m_pointSrv;
+	ComPtr<ID3D11UnorderedAccessView> m_pointUav;
 
 public:
 	bool Initialize();
 
-	ComPtr<ID3D11Buffer> GetBuffer() { return m_lightBuffer; }
-	ComPtr<ID3D11ShaderResourceView> GetSrv() { return m_lightSrv; }
-	ComPtr<ID3D11UnorderedAccessView> GetUav() { return m_lightUav; }
+	ComPtr<ID3D11Buffer> GetBuffer() { return m_pointBuffer; }
+	ComPtr<ID3D11ShaderResourceView> GetSrv() { return m_pointSrv; }
+	ComPtr<ID3D11UnorderedAccessView> GetUav() { return m_pointUav; }
 
 	static LightBufferFactory& Inst() {
 		static LightBufferFactory inst;

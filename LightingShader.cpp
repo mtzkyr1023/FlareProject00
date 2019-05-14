@@ -1,7 +1,7 @@
 #include "LightingShader.h"
 
 
-bool LightCullShader::Initialize() {
+bool LightCullShader::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> CSBlob, errorMessage;
 
@@ -22,7 +22,7 @@ bool LightCullShader::Initialize() {
 }
 
 
-bool LightingShader::Initialize() {
+bool LightingShader::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	HRESULT res;
 	ComPtr<ID3DBlob> CSBlob, errorMessage;
 

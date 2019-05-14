@@ -5,13 +5,13 @@
 
 class CubeMapVS : public VertexShader {
 public:
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 
 class CubeMapPS : public PixelShader {
 public:
-	bool Initialize();
+	bool Initialize(LPCWSTR filename = 0, LPCSTR entryPoint = 0);
 };
 
 #endif
