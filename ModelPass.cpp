@@ -9,6 +9,7 @@
 #include "WaterShader.h"
 #include "CubeMapShader.h"
 #include "CopyCS.h"
+#include "Environment.h"
 using namespace std;
 using namespace DirectX;
 
@@ -26,10 +27,6 @@ bool ModelPass::InitPass() {
 	m_waterps = make_unique<WaterPS>();
 	m_cubemapvs = make_unique<CubeMapVS>();
 	m_cubemapps = make_unique<CubeMapPS>();
-	m_copycs = make_unique<CopyCS>();
-	m_expvs = make_unique<VertexShader>();
-	m_expgs = make_unique<GeometryShader>();
-	m_expps = make_unique<PixelShader>();
 
 	if (!m_vs->Initialize())
 		return false;
@@ -49,16 +46,6 @@ bool ModelPass::InitPass() {
 	if (!m_cubemapps->Initialize())
 		return false;
 
-	if (!m_expvs->Initialize(L"shader/explosion_shader/explosion_vs.fx","vs_main"))
-		return false;
-	if (!m_expgs->Initialize(L"shader/explosion_shader/explosion_gs.fx", "gs_main"))
-		return false;
-	if (!m_expps->Initialize(L"shader/explosion_shader/explosion_ps.fx", "ps_main"))
-		return false;
-
-	if (!m_copycs->Initialize())
-		return false;
-
 	if (!InitColorTexture())
 		return false;
 
@@ -74,12 +61,6 @@ bool ModelPass::InitPass() {
 	if (!InitSamplerState())
 		return false;
 
-	if (!InitHeightMap())
-		return false;
-	
-	if (!InitTmpTex())
-		return false;
-
 
 	if (!MatrixFactory::Inst().Initialize())
 		return false;
@@ -88,7 +69,6 @@ bool ModelPass::InitPass() {
 	m_viewBuffer = MatrixFactory::Inst().GetViewBuffer();
 	m_projBuffer = MatrixFactory::Inst().GetProjBuffer();
 	m_vpBuffer = MatrixFactory::Inst().GetViewProjBuffer();
-	m_timeBuffer = MatrixFactory::Inst().GetTimeBuffer();
 	m_materialBuffer = MatrixFactory::Inst().GetMaterialBuffer();
 
 	m_shadowBuffer = MatrixFactory::Inst().GetShadowBuffer();
@@ -100,14 +80,14 @@ bool ModelPass::InitPass() {
 
 	ModelFactory::Inst().CreateBackgroundModel("res/model/CubeMap.obj");
 
+	Environment::Inst().LoadCubeMap("tex/CubeMap02/");
+
+	m_cubeMapSrv = Environment::Inst().GetCubeMap();
+
 	ModelObject::SetManager(&ModelObjectManager::Inst());
 	m_obj1 = make_unique<ModelObject>(0);
 	m_obj2 = make_unique<ModelObject>(1);
 	m_obj3 = make_unique<ModelObject>(2);
-
-	m_water = make_unique<ModelObject>(3, true);
-
-	m_material.LoadTexture("teppan.jpg");
 
 	return true;
 }
@@ -161,40 +141,16 @@ bool ModelPass::Rendering() {
 	if (!modelArray[m_obj1->GetModelId()])
 		return false;
 
-	if (GetAsyncKeyState('E')) {
-		m_obj1->SetModelStatus(ModelObject::EXPLOSION);
-		state = true;
-	}
-	if (GetAsyncKeyState('R')) {
-		m_obj1->SetModelStatus(ModelObject::NORMAL);
-		state = false;
-	}
-
-	if (state)
-		timer++;
-	else
-		timer = 0;
-
 	for (auto ite : objList) {
 		MatrixFactory::Inst().SetWorldMatrix(ite->GetMatrix());
 		if (!modelArray[ite->GetModelId()])
 			continue;
-		if (ite->GetStatus() == ModelObject::EXPLOSION) {
-			m_expvs->SetShader();
-			m_expgs->SetShader();
-			m_expps->SetShader();
-			m_context->VSSetConstantBuffers(0, 1, m_worldBuffer.GetAddressOf());
-			m_context->GSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
-			m_context->GSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
-			m_context->GSSetConstantBuffers(2, 1, m_timeBuffer.GetAddressOf());
-		}
-		else {
-			m_vs->SetShader();
-			m_ps->SetShader();
-			m_context->GSSetShader(NULL, 0, 0);
-			m_context->VSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
-			m_context->VSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
-		}
+
+		m_vs->SetShader();
+		m_ps->SetShader();
+		m_context->GSSetShader(NULL, 0, 0);
+		m_context->VSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
+		m_context->VSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
 		for (int i = 0; i < modelArray[ite->GetModelId()]->GetMeshCount(); i++) {
 			MatrixFactory::Inst().SetMaterial(
 				modelArray[ite->GetModelId()]->GetDiffuse(i),
@@ -213,17 +169,6 @@ bool ModelPass::Rendering() {
 
 	m_context->ClearState();
 
-	m_copycs->SetShader();
-
-	m_context->CSSetShaderResources(0, 1, m_outputSrv[COLOR_TEX].GetAddressOf());
-	m_context->CSSetShaderResources(1, 1, m_outputSrv[DEPTH_TEX].GetAddressOf());
-	m_context->CSSetUnorderedAccessViews(0, 1, m_tmpColorUav.GetAddressOf(), NULL);
-	m_context->CSSetUnorderedAccessViews(1, 1, m_tmpDepthUav.GetAddressOf(), NULL);
-
-	m_context->Dispatch(32, 32, 1);
-
-	m_context->ClearState();
-
 	m_watervs->SetShader();
 	m_watergs->SetShader();
 	m_waterps->SetShader();
@@ -233,39 +178,6 @@ bool ModelPass::Rendering() {
 	
 	float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 //	m_context->OMSetBlendState(m_blendState.Get(), blendFactor, 0xffffffff);
-
-
-	ID3D11ShaderResourceView* srvArray[] = {
-		m_cubeSrv.Get(),
-		m_tmpColorSrv.Get(),
-		m_tmpDepthSrv.Get(),
-	};
-
-	m_context->PSSetConstantBuffers(0, 1, m_vpBuffer.GetAddressOf());
-
-	m_context->PSSetShaderResources(0, ARRAYSIZE(srvArray), srvArray);
-	m_context->PSSetSamplers(0, 1, m_clampSampler.GetAddressOf());
-
-	m_context->RSSetState(m_rasterState.Get());
-	m_context->RSSetViewports(1, &m_vp);
-
-	m_context->GSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
-	m_context->GSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
-
-	m_context->GSSetShaderResources(0, 1, m_heightSrv.GetAddressOf());
-	m_context->GSSetSamplers(0, 1, m_wrapSampler.GetAddressOf());
-
-	XMStoreFloat4x4(m_water->GetMatrix(), XMMatrixScaling(4.0f, 1.0f, 4.0f));
-
-	MatrixFactory::Inst().SetWorldMatrix(m_water->GetMatrix());
-	if (!modelArray[m_water->GetModelId()])
-		return false;
-
-	for (int i = 0; i < modelArray[m_water->GetModelId()]->GetMeshCount(); i++) {
-		modelArray[m_water->GetModelId()]->SetBuffer(i);
-		m_context->VSSetConstantBuffers(0, 1, m_worldBuffer.GetAddressOf());
-		m_context->DrawIndexed(modelArray[m_water->GetModelId()]->GetIndexCount(i), 0, 0);
-	}
 
 	m_context->ClearState();
 
@@ -284,7 +196,7 @@ bool ModelPass::Rendering() {
 	
 	m_context->VSSetConstantBuffers(0, 1, m_vpBuffer.GetAddressOf());
 
-	m_context->PSSetShaderResources(0, 1, m_cubeSrv.GetAddressOf());
+	m_context->PSSetShaderResources(0, 1, m_cubeMapSrv.GetAddressOf());
 	m_context->PSSetSamplers(0, 1, m_wrapSampler.GetAddressOf());
 
 	backModel->SetBuffer(0);
@@ -482,12 +394,6 @@ bool ModelPass::InitRasterState() {
 	m_viewport.MinDepth = 0.0f;
 	m_viewport.TopLeftX = 0.0f;
 	m_viewport.TopLeftY = 0.0f;
-	m_vp.Width = (float)m_width;
-	m_vp.Height = (float)m_height;
-	m_vp.MaxDepth = 1.0f;
-	m_vp.MinDepth = 0.0f;
-	m_vp.TopLeftX = 0.0f;
-	m_vp.TopLeftY = 0.0f;
 
 	return true;
 }
@@ -547,201 +453,3 @@ bool ModelPass::InitSamplerState() {
 	return true;
 }
 
-bool ModelPass::InitHeightMap() {
-	HRESULT res;
-	ComPtr<ID3D11Texture2D> tex;
-
-	D3D11_TEXTURE2D_DESC texDesc{};
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	D3D11_SUBRESOURCE_DATA initData{};
-	float src[32][32];
-
-	random_device rnd;
-	for (int i = 0; i < 32; i++) {
-		for (int j = 0; j < 32; j++) {
-			src[i][j] = (float)(rnd() % 16);
-		}
-	}
-
-	initData.pSysMem = &src[0][0];
-	initData.SysMemPitch = 128;
-	initData.SysMemSlicePitch = 0;
-
-	texDesc.Width = 32;
-	texDesc.Height = 32;
-	texDesc.ArraySize = 1;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	texDesc.MipLevels = 1;
-	texDesc.MiscFlags = 0;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	srvDesc.Format = texDesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-
-	res = m_device->CreateTexture2D(&texDesc, &initData, tex.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating height texture.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_heightSrv.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating height srv.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	{
-		BYTE* pixels[6];
-		int width[6];
-		int height[6];
-		int bpp[6];
-		string filename[6];
-		D3D11_SUBRESOURCE_DATA init[6];
-
-		filename[0] = "tex/CubeMap02/posx.jpg";
-		filename[1] = "tex/CubeMap02/negx.jpg";
-		filename[2] = "tex/CubeMap02/posy.jpg";
-		filename[3] = "tex/CubeMap02/negy.jpg";
-		filename[4] = "tex/CubeMap02/posz.jpg";
-		filename[5] = "tex/CubeMap02/negz.jpg";
-
-		for (int i = 0; i < 6; i++) {
-			pixels[i] = stbi_load(filename[i].c_str(), &width[i], &height[i], &bpp[i], 4);
-
-			init[i].pSysMem = pixels[i];
-			init[i].SysMemPitch = width[i] * 4;
-			init[i].SysMemSlicePitch = 0;
-		}
-
-
-		texDesc.Width = width[0];
-		texDesc.Height = height[0];
-		texDesc.ArraySize = 6;
-		texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		texDesc.CPUAccessFlags = 0;
-		texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		texDesc.MipLevels = 1;
-		texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-		texDesc.SampleDesc.Count = 1;
-		texDesc.SampleDesc.Quality = 0;
-		texDesc.Usage = D3D11_USAGE_DEFAULT;
-
-		res = m_device->CreateTexture2D(&texDesc, init, tex.ReleaseAndGetAddressOf());
-		if (FAILED(res)) {
-			MessageBox(NULL, "failed creating cubeMap.", "ModelPass.cpp", MB_OK);
-			return false;
-		}
-
-		for (int i = 0; i < 6; i++) {
-			stbi_image_free(pixels[i]);
-		}
-
-		srvDesc.Format = texDesc.Format;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MipLevels = 1;
-		srvDesc.TextureCube.MostDetailedMip = 0;
-
-		res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_cubeSrv.ReleaseAndGetAddressOf());
-		if (FAILED(res)) {
-			MessageBox(NULL, "failed creating cube map srv.", "ModelPass.cpp", MB_OK);
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool ModelPass::InitTmpTex() {
-	HRESULT res;
-	ComPtr<ID3D11Texture2D> tex;
-
-	D3D11_TEXTURE2D_DESC texDesc{};
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
-
-	texDesc.Width = m_width;
-	texDesc.Height = m_height;
-	texDesc.ArraySize = 1;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	texDesc.MipLevels = 1;
-	texDesc.MiscFlags = 0;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	uavDesc.Format = texDesc.Format;
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	uavDesc.Texture2D.MipSlice = 0;
-
-	srvDesc.Format = texDesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-
-	res = m_device->CreateTexture2D(&texDesc, NULL, tex.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating tmp color buffer.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	res = m_device->CreateUnorderedAccessView(tex.Get(), &uavDesc, m_tmpColorUav.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating tmp color uav.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_tmpColorSrv.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating tmp color srv.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	texDesc.Width = m_width;
-	texDesc.Height = m_height;
-	texDesc.ArraySize = 1;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	texDesc.MipLevels = 1;
-	texDesc.MiscFlags = 0;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-
-	uavDesc.Format = texDesc.Format;
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	uavDesc.Texture2D.MipSlice = 0;
-
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-
-	res = m_device->CreateTexture2D(&texDesc, NULL, tex.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating tmp depth buffer.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	res = m_device->CreateUnorderedAccessView(tex.Get(), &uavDesc, m_tmpDepthUav.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating tmp depth uav.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_tmpDepthSrv.ReleaseAndGetAddressOf());
-	if (FAILED(res)) {
-		MessageBox(NULL, "failed creating tmp depth srv.", "ModelPass.cpp", MB_OK);
-		return false;
-	}
-
-	return true;
-}

@@ -33,45 +33,29 @@ private:
 	std::unique_ptr<VertexShader> m_cubemapvs;
 	std::unique_ptr<PixelShader> m_cubemapps;
 
-	std::unique_ptr<VertexShader> m_expvs;
-	std::unique_ptr<GeometryShader> m_expgs;
-	std::unique_ptr<PixelShader> m_expps;
-
-	std::unique_ptr<ComputeShader> m_copycs;
-
 	ComPtr<ID3D11RenderTargetView> m_rtv[VIEW_NUM];
 	ComPtr<ID3D11DepthStencilView> m_dsv;
-
-	ComPtr<ID3D11ShaderResourceView> m_heightSrv;
-	ComPtr<ID3D11ShaderResourceView> m_cubeSrv;
-
-	ComPtr<ID3D11ShaderResourceView> m_tmpColorSrv;
-	ComPtr<ID3D11ShaderResourceView> m_tmpDepthSrv;
-	ComPtr<ID3D11UnorderedAccessView> m_tmpColorUav;
-	ComPtr<ID3D11UnorderedAccessView> m_tmpDepthUav;
 
 	ComPtr<ID3D11BlendState> m_blendState;
 
 	ComPtr<ID3D11RasterizerState> m_rasterState;
 	D3D11_VIEWPORT m_viewport;
-	D3D11_VIEWPORT m_vp;
 
 	ComPtr<ID3D11Buffer> m_worldBuffer;
 	ComPtr<ID3D11Buffer> m_viewBuffer;
 	ComPtr<ID3D11Buffer> m_projBuffer;
 	ComPtr<ID3D11Buffer> m_vpBuffer;
-	ComPtr<ID3D11Buffer> m_timeBuffer;
 	ComPtr<ID3D11Buffer> m_materialBuffer;
 
 	ComPtr<ID3D11Buffer> m_shadowBuffer;
+
+	ComPtr<ID3D11ShaderResourceView> m_cubeMapSrv;
 
 	ComPtr<ID3D11SamplerState> m_cubeSampler;
 	ComPtr<ID3D11SamplerState> m_wrapSampler;
 	ComPtr<ID3D11SamplerState> m_clampSampler;
 
 	std::unique_ptr<ModelObject> m_obj1, m_obj2, m_obj3;
-	std::unique_ptr<ModelObject> m_water;
-	Material m_material;
 	Camera m_camera;
 
 private:
@@ -80,10 +64,6 @@ private:
 	bool InitDepthTexture();
 	bool InitRasterState();
 	bool InitSamplerState();
-
-	bool InitHeightMap();
-
-	bool InitTmpTex();
 
 public:
 	ModelPass(UINT width, UINT height);

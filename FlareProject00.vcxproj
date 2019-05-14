@@ -130,6 +130,7 @@
     <ClInclude Include="CopyCS.h" />
     <ClInclude Include="CubeMapShader.h" />
     <ClInclude Include="Device.h" />
+    <ClInclude Include="Environment.h" />
     <ClInclude Include="FbxLoader.h" />
     <ClInclude Include="GameMain.h" />
     <ClInclude Include="imgui_dx11\imconfig.h" />
@@ -155,13 +156,13 @@
     <ClInclude Include="MtlLoader.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjLoader.h" />
+    <ClInclude Include="ReflecetPass.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadowPass.h" />
     <ClInclude Include="ShadowShader.h" />
     <ClInclude Include="SwapChain.h" />
-    <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="WaterShader.h" />
     <ClInclude Include="WICTextureLoader.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="CopyCS.cpp" />
     <ClCompile Include="CubeMapShader.cpp" />
     <ClCompile Include="Device.cpp" />
+    <ClCompile Include="Environment.cpp" />
     <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="GameMain.cpp" />
     <ClCompile Include="imgui_dx11\imgui.cpp" />
@@ -194,6 +196,7 @@
     <ClCompile Include="MtlLoader.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
+    <ClCompile Include="ReflectPass.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />

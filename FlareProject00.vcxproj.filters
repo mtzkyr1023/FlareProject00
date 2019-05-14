@@ -231,8 +231,11 @@
     <ClInclude Include="TextureManager.h">
       <Filter>ヘッダー ファイル\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>ヘッダー ファイル\Resource\Texture</Filter>
+    <ClInclude Include="Environment.h">
+      <Filter>ヘッダー ファイル\Resource\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="ReflecetPass.h">
+      <Filter>ヘッダー ファイル\RenderPass</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -343,6 +346,12 @@
     </ClCompile>
     <ClCompile Include="CopyCS.cpp">
       <Filter>ソース ファイル\Shader\ComputeShader</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment.cpp">
+      <Filter>ソース ファイル\Resource\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectPass.cpp">
+      <Filter>ソース ファイル\RenderPass</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
