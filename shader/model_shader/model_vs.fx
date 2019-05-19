@@ -38,13 +38,22 @@ struct VS_OUT {
 	float linearZ : TEXCOORD1;
 	float4 shadowPos : TEXCOORD2;
 	float3 wnor : NORMAL1;
+	float3 viewPos : TEXCOORD3;
+	float3 wpos : TEXCOORD4;
 };
 
 VS_OUT vs_static_main(VS_STATIC_IN input) {
 	VS_OUT output = (VS_OUT)0;
 	float4 shadowPos;
 
+	float3 viewPos;
+	viewPos.x = -dot(g_view[0], g_view[3]);
+	viewPos.y = -dot(g_view[1], g_view[3]);
+	viewPos.z = -dot(g_view[2], g_view[3]);
+	
 	output.pos = mul(float4(input.pos, 1.0f), g_world);
+	output.viewPos = viewPos;
+	output.wpos = output.pos.xyz;
 	output.pos = mul(output.pos, g_view);
 	output.linearZ = output.pos.z;
 	output.pos = mul(output.pos, g_proj);
@@ -69,7 +78,15 @@ VS_OUT vs_static_main(VS_STATIC_IN input) {
 VS_OUT vs_skinned_main(VS_SKINNED_IN input) {
 	VS_OUT output = (VS_OUT)0;
 
+	float3 viewPos;
+	viewPos.x = -dot(g_view[0], g_view[3]);
+	viewPos.y = -dot(g_view[1], g_view[3]);
+	viewPos.z = -dot(g_view[2], g_view[3]);
+	
+	output.viewPos = viewPos;
+
 	output.pos = mul(float4(input.pos, 1.0f), g_world);
+	output.wpos = output.pos;
 	output.pos = mul(output.pos, g_view);
 	output.linearZ = output.pos.z;
 	output.pos = mul(output.pos, g_proj);

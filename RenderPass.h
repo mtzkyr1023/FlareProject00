@@ -71,6 +71,7 @@ private:
 	std::unique_ptr<RenderPass> m_lightingPass;
 	std::unique_ptr<RenderPass> m_modelPass;
 	std::unique_ptr<RenderPass> m_shadowPass;
+	std::unique_ptr<RenderPass> m_reflectPass;
 
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height, bool vsync);

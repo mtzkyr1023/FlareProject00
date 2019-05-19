@@ -2,13 +2,12 @@
 #define _MODELPASS_H_
 
 
-#define COLOR_TEX 0
+#define ALBEDO_TEX 0
 #define NORMAL_TEX 1
 #define DEPTH_TEX 2
 #define STENCIL_TEX 3
-
-#define TMP_COLOR_TEX 4
-#define TMP_DEPTH_TEX 5
+#define METALNESS_TEX 4
+#define ROUGHNESS_TEX 5
 
 #include <memory>
 #include <list>
@@ -25,6 +24,11 @@ class ModelPass : public RenderPass {
 private:
 	std::unique_ptr<VertexShader> m_vs;
 	std::unique_ptr<PixelShader> m_ps;
+
+
+	std::unique_ptr<VertexShader> m_expvs;
+	std::unique_ptr<GeometryShader> m_expgs; 
+	std::unique_ptr<PixelShader> m_expps;
 
 	std::unique_ptr<VertexShader> m_watervs;
 	std::unique_ptr<GeometryShader> m_watergs;
@@ -45,9 +49,12 @@ private:
 	ComPtr<ID3D11Buffer> m_viewBuffer;
 	ComPtr<ID3D11Buffer> m_projBuffer;
 	ComPtr<ID3D11Buffer> m_vpBuffer;
+	ComPtr<ID3D11Buffer> m_timeBuffer;
 	ComPtr<ID3D11Buffer> m_materialBuffer;
 
 	ComPtr<ID3D11Buffer> m_shadowBuffer;
+
+	ComPtr<ID3D11Buffer> m_dirLightBuffer;
 
 	ComPtr<ID3D11ShaderResourceView> m_cubeMapSrv;
 
@@ -55,7 +62,7 @@ private:
 	ComPtr<ID3D11SamplerState> m_wrapSampler;
 	ComPtr<ID3D11SamplerState> m_clampSampler;
 
-	std::unique_ptr<ModelObject> m_obj1, m_obj2, m_obj3;
+	std::unique_ptr<ModelObject> m_obj1, m_obj2, m_obj3, m_obj4, m_obj5;
 	Camera m_camera;
 
 private:

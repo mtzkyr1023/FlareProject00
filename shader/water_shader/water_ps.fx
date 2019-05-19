@@ -6,7 +6,6 @@ float3 mod(float3 a, float b) { return a-b*floor(a/b); }
 
 float noise(float2 seed) {
     return frac(sin(dot(seed.xy, seed.yx)) * NOISE_POWER);
-//	return frac(sin(seed.x * seed.y));
 }
 
 cbuffer VPMatrix : register(b0) {
@@ -46,7 +45,6 @@ PS_OUT ps_main(PS_IN input) {
 	
 	for (int i = 1; i <= RAY_NUM; i++) {
 		float3 rayPos = input.wpos + step * ((float)i + noise(spos));
-//		float3 rayPos = input.wpos + step * ((float)i);
 		float4 vpPos = mul(float4(rayPos, 1.0f), g_vpMatrix);
 		vpPos /= vpPos.w;
 		vpPos.x = (1.0f + (vpPos.x)) * 0.5f;

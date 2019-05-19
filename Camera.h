@@ -8,6 +8,7 @@ protected:
 	DirectX::XMFLOAT4X4 m_viewMatrix;
 	DirectX::XMFLOAT4X4 m_projMatrix;
 	DirectX::XMFLOAT4X4 m_viewProjMatrix;
+	DirectX::XMFLOAT4X4 m_invViewMatrix;
 
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT3 m_focus;
@@ -36,6 +37,7 @@ public:
 	DirectX::XMFLOAT4X4* GetViewMatrix() { return &m_viewMatrix; }
 	DirectX::XMFLOAT4X4* GetProjMatrix() { return &m_projMatrix; }
 	DirectX::XMFLOAT4X4* GetViewProjMatrix() { return &m_viewProjMatrix; }
+	DirectX::XMFLOAT4X4* GetInvViewMatrix() { return &m_invViewMatrix; }
 
 	bool Run();
 };

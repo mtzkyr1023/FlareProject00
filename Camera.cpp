@@ -49,6 +49,7 @@ bool Camera::Run() {
 		XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)));
 
 	XMStoreFloat4x4(&m_viewProjMatrix, XMLoadFloat4x4(&m_viewMatrix) * XMLoadFloat4x4(&m_projMatrix));
+	XMStoreFloat4x4(&m_invViewMatrix, XMMatrixInverse(NULL, XMLoadFloat4x4(&m_viewMatrix)));
 
 	return true;
 }

@@ -5,6 +5,10 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <memory>
+#include <deque>
+#include <map>
+#include <unordered_map>
+#include <algorithm>
 
 #include "Material.h"
 
@@ -23,10 +27,13 @@ private:
 
 private:
 	std::vector<Mesh> m_meshArray;
+	std::unordered_map<std::string, UINT> m_boneIndexArray;
 
 private:
 	void GetNormal(FbxLayerElementNormal* normal, int vertexCount, int* index, std::vector<DirectX::XMFLOAT3>& ret, int& normalCount);
 	void GetUV(FbxLayerElementUV* uv, int vertexCount, int* index, std::vector<DirectX::XMFLOAT2>& ret, int& uvCount);
+	void GetBoneInfo(FbxMesh* mesh, int vertexCount, int indexCount, int* index, std::vector<DirectX::XMFLOAT4>& retWeight,
+		std::vector<DirectX::XMUINT4>& retIndex);
 
 public:
 	bool LoadFbx(const char* filename);

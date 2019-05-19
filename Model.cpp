@@ -12,8 +12,6 @@ bool Model::Initialize(const char* filename) {
 	unique_ptr<Vertex[]> vertex;
 	vector<unique_ptr<int[]>> index;
 
-	bool smoothFlag;
-
 	if (!loader2.ReadFile(filename))
 		return false;
 
@@ -166,7 +164,7 @@ bool Model::Initialize(const char* filename) {
 	m_vertexBuffer.resize(m_meshCount);
 	m_indexBuffer.resize(m_meshCount);
 
-	for (int i = 0; i < m_vertexCount[0]; i++) {
+	for (int i = 0; i < (int)m_vertexCount[0]; i++) {
 		XMStoreFloat3(&vertex[i].nor, XMVector3Normalize(XMLoadFloat3(&vertex[i].nor)));
 	}
 

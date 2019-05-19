@@ -22,7 +22,7 @@ bool LightBufferFactory::Initialize() {
 		initLight[i].color.x = (float)(rnd() % 256) / 256;
 		initLight[i].color.y = 1.0f - initLight[i].color.x;
 		initLight[i].color.z = (float)(rnd() % 256) / 256;
-		initLight[i].color.w = 0.0f;
+		initLight[i].color.w = (float)(rnd() % 30) / 50.0f;
 	}
 
 

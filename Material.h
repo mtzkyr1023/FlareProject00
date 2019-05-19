@@ -1,7 +1,10 @@
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
+#define MATERIAL_NUM 16
+
 #include <DirectXMath.h>
+#include <vector>
 
 #include "Device.h"
 
@@ -52,11 +55,38 @@ public:
 class MaterialPBR {
 private:
 	DirectX::XMFLOAT4 m_albedo;
-	float m_metalnes;
+	float m_metalness;
 	float m_roughness;
+	ComPtr<ID3D11ShaderResourceView> m_albedoTex;
+	ComPtr<ID3D11ShaderResourceView> m_bumpTex;
 
+public:
+	MaterialPBR(DirectX::XMFLOAT4 albedo = DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1), float metalness = 0, float roughness = 0) :
+		m_albedo(albedo), m_metalness(metalness), m_roughness(roughness) {
 
+	}
+
+	DirectX::XMFLOAT4 GetAlbedo() { return m_albedo; }
+	float GetMetalness() { return m_metalness; }
+	float GetRoughness() { return m_roughness; }
 };
 
+
+class MaterialFactory {
+private:
+	std::vector<MaterialPBR> m_materialArray;
+
+public:
+	MaterialFactory() {
+		m_materialArray.resize(MATERIAL_NUM);
+	}
+
+	std::vector<MaterialPBR>& GetMaterialArray() { return m_materialArray; }
+
+	static MaterialFactory& Inst() {
+		static MaterialFactory inst;
+		return inst;
+	}
+};
 
 #endif

@@ -29,6 +29,7 @@ protected:
 	UINT m_stride;
 	UINT m_modelType;
 	int m_meshCount;
+	int m_materialId;
 
 protected:
 	struct Vertex {
@@ -39,7 +40,7 @@ protected:
 
 public:
 	Model() : m_vertexCount(0), m_indexCount(0), m_stride((UINT)sizeof(Vertex)), m_modelType(STATIC), m_meshCount(1), 
-		m_allVertexCount(0), m_allIndexCount(0) {
+		m_allVertexCount(0), m_allIndexCount(0), m_materialId(0) {
 	}
 	virtual ~Model() {}
 
@@ -71,6 +72,7 @@ public:
 	DirectX::XMFLOAT4* GetSpecular(int num) { return &m_specular[num]; }
 
 	int GetMeshCount() { return m_meshCount; }
+	int GetMaterialId() { return m_materialId; }
 };
 
 

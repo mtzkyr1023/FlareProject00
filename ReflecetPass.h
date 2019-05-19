@@ -12,12 +12,21 @@ private:
 
 	ComPtr<ID3D11ShaderResourceView> m_cubeMapSrv;
 
+	ComPtr<ID3D11UnorderedAccessView> m_uav;
+
+	ComPtr<ID3D11SamplerState> m_sampler;
+
+	ComPtr<ID3D11Buffer> m_invViewBuffer;
+	ComPtr<ID3D11Buffer> m_projBuffer;
+	ComPtr<ID3D11Buffer> m_viewBuffer;
+	ComPtr<ID3D11Buffer> m_vpBuffer;
+
 private:
 	bool InitRelfectMap();
 
 private:
 	bool InitPass();
-	bool RenderPass();
+	bool Rendering();
 
 public:
 	ReflectPass(UINT width, UINT height) {

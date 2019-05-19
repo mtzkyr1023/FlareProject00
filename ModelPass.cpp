@@ -1,5 +1,10 @@
 #include <random>
 
+
+#include "imgui_dx11/imgui.h"
+#include "imgui_dx11/imgui_impl_win32.h"
+#include "imgui_dx11/imgui_impl_dx11.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_lib/stb_image.h"
 
@@ -10,6 +15,7 @@
 #include "CubeMapShader.h"
 #include "CopyCS.h"
 #include "Environment.h"
+#include "Material.h"
 using namespace std;
 using namespace DirectX;
 
@@ -27,6 +33,9 @@ bool ModelPass::InitPass() {
 	m_waterps = make_unique<WaterPS>();
 	m_cubemapvs = make_unique<CubeMapVS>();
 	m_cubemapps = make_unique<CubeMapPS>();
+	m_expvs = make_unique<VertexShader>();
+	m_expgs = make_unique<GeometryShader>();
+	m_expps = make_unique<PixelShader>();
 
 	if (!m_vs->Initialize())
 		return false;
@@ -44,6 +53,13 @@ bool ModelPass::InitPass() {
 	if (!m_cubemapvs->Initialize())
 		return false;
 	if (!m_cubemapps->Initialize())
+		return false;
+
+	if (!m_expvs->Initialize(L"shader/explosion_shader/explosion_vs.fx", "vs_main"))
+		return false;
+	if (!m_expgs->Initialize(L"shader/explosion_shader/explosion_gs.fx", "gs_main"))
+		return false;
+	if (!m_expps->Initialize(L"shader/explosion_shader/explosion_ps.fx", "ps_main"))
 		return false;
 
 	if (!InitColorTexture())
@@ -65,22 +81,28 @@ bool ModelPass::InitPass() {
 	if (!MatrixFactory::Inst().Initialize())
 		return false;
 
+	if (!Environment::Inst().Initialize())
+		return false;
+
 	m_worldBuffer = MatrixFactory::Inst().GetWorldBuffer();
 	m_viewBuffer = MatrixFactory::Inst().GetViewBuffer();
 	m_projBuffer = MatrixFactory::Inst().GetProjBuffer();
 	m_vpBuffer = MatrixFactory::Inst().GetViewProjBuffer();
-	m_materialBuffer = MatrixFactory::Inst().GetMaterialBuffer();
+	m_timeBuffer = MatrixFactory::Inst().GetTimeBuffer();
+	m_materialBuffer = Environment::Inst().GetMaterialBuffer();
 
 	m_shadowBuffer = MatrixFactory::Inst().GetShadowBuffer();
 
+	m_dirLightBuffer = Environment::Inst().GetDirLightBuffer();
+
 	ModelFactory::Inst().CreateStaticModel("res/model/monkey_flat.obj", 0);
 	ModelFactory::Inst().CreateStaticModel("res/model/sphere.obj", 1);
-	ModelFactory::Inst().CreateStaticModel("res/model/Cube.obj", 2);
+	ModelFactory::Inst().CreateStaticModel("res/model/Cube_quad.obj", 2);
 	ModelFactory::Inst().CreateStaticModel("res/model/water.obj", 3);
 
 	ModelFactory::Inst().CreateBackgroundModel("res/model/CubeMap.obj");
 
-	Environment::Inst().LoadCubeMap("tex/CubeMap02/");
+	Environment::Inst().LoadCubeMap("tex/CubeMap01/");
 
 	m_cubeMapSrv = Environment::Inst().GetCubeMap();
 
@@ -88,19 +110,48 @@ bool ModelPass::InitPass() {
 	m_obj1 = make_unique<ModelObject>(0);
 	m_obj2 = make_unique<ModelObject>(1);
 	m_obj3 = make_unique<ModelObject>(2);
+	m_obj4 = make_unique<ModelObject>(1);
+	m_obj5 = make_unique<ModelObject>(2);
 
 	return true;
 }
 
 bool ModelPass::Rendering() {
-	float color[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+
+	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	ID3D11RenderTargetView* rtvArray[] = {
-		m_rtv[COLOR_TEX].Get(),
+		m_rtv[ALBEDO_TEX].Get(),
 		m_rtv[NORMAL_TEX].Get(),
+		m_rtv[METALNESS_TEX].Get(),
+		m_rtv[ROUGHNESS_TEX].Get(),
 	};
 
 	for (int i = 0; i < ARRAYSIZE(rtvArray); i++)
 		m_context->ClearRenderTargetView(rtvArray[i], color);
+
+	m_context->OMSetRenderTargets(1, m_rtv->GetAddressOf(), NULL);
+
+	m_context->RSSetState(m_rasterState.Get());
+	m_context->RSSetViewports(1, &m_viewport);
+
+	shared_ptr<Model> backModel;
+	ModelFactory::Inst().GetBackgroundModel(backModel);
+
+	m_cubemapvs->SetShader();
+	m_cubemapps->SetShader();
+
+	MatrixFactory::Inst().SetVPMatrix(m_camera.GetViewProjMatrix());
+
+	m_context->VSSetConstantBuffers(0, 1, m_vpBuffer.GetAddressOf());
+
+	m_context->PSSetShaderResources(0, 1, m_cubeMapSrv.GetAddressOf());
+	m_context->PSSetSamplers(0, 1, m_wrapSampler.GetAddressOf());
+
+	backModel->SetBuffer(0);
+	m_context->DrawIndexed(backModel->GetIndexCount(0), 0, 0);
+
+	m_context->ClearState();
+
 	m_context->ClearDepthStencilView(m_dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	m_context->OMSetRenderTargets(ARRAYSIZE(rtvArray), rtvArray, m_dsv.Get());
@@ -112,9 +163,7 @@ bool ModelPass::Rendering() {
 	MatrixFactory::Inst().SetViewMatrix(m_camera.GetViewMatrix());
 	MatrixFactory::Inst().SetProjMatrix(m_camera.GetProjMatrix());
 
-	m_context->VSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
-	m_context->VSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
-	m_context->VSSetConstantBuffers(3, 1, m_shadowBuffer.GetAddressOf());
+	m_inputSrv[m_inputSrvNum++] = m_cubeMapSrv.Get();
 
 	m_context->PSSetShaderResources(0, m_inputSrvNum, m_inputSrv);
 	m_context->PSSetSamplers(0, 1, m_wrapSampler.GetAddressOf());
@@ -123,49 +172,100 @@ bool ModelPass::Rendering() {
 
 	list<ModelObject*>& objList = ModelObjectManager::Inst().GetObjectArray();
 	vector<shared_ptr<Model>>& modelArray = ModelFactory::Inst().GetModelArray();
+	vector<MaterialPBR>& materialArray = MaterialFactory::Inst().GetMaterialArray();
 	static float rot1, rot2, timer;
 	static bool state;
-	rot1 += 0.0f;
+	rot1 += 0.01f;
 	rot2 += 0.0f;
-//	XMStoreFloat4x4(m_obj1->GetMatrix(), XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixTranslation(0.0f, 0.1f, 0.0f));
-	XMStoreFloat4x4(m_obj1->GetMatrix(), XMMatrixScaling(1.25f, 1.25f, 1.25f) *
-		XMMatrixRotationX(rot1) * XMMatrixRotationY(rot2) *
-		XMMatrixTranslation(0.0f, 2.1f, 0.0f));
-//	XMStoreFloat4x4(m_obj2->GetMatrix(), XMMatrixScaling(25.0f, 0.01f, 25.0f) * XMMatrixTranslation(0.0f, 0.0, 0.0f));
-	XMStoreFloat4x4(m_obj2->GetMatrix(), XMMatrixTranslation(-3.0f, 2.0, 0.0f));
-	XMStoreFloat4x4(m_obj3->GetMatrix(), XMMatrixTranslation(3.0f, 1.08f, 0.0f));
+	XMStoreFloat4x4(m_obj1->GetMatrix(), XMMatrixScaling(1.03f, 1.03f, 1.03f) *
+		XMMatrixRotationY(rot1) * XMMatrixTranslation(0.0f, 0.1f, 0.0f) * XMMatrixTranslation(0.0f, 1.5f, 0.0f));
+//	XMStoreFloat4x4(m_obj1->GetMatrix(), XMMatrixScaling(1.25f, 1.25f, 1.25f) *
+//		XMMatrixRotationX(rot1) * XMMatrixRotationY(rot2) *
+//		XMMatrixTranslation(0.0f, 1.8f, 0.0f));
+	XMStoreFloat4x4(m_obj3->GetMatrix(), XMMatrixScaling(25.0f, 0.01f, 25.0f) * XMMatrixTranslation(0.0f, 0.0, 0.0f));
+	XMStoreFloat4x4(m_obj2->GetMatrix(), XMMatrixTranslation(-3.5f, 1.0, 0.0f));
+	XMStoreFloat4x4(m_obj4->GetMatrix(), XMMatrixTranslation(3.5f, 1.0, 0.0f));
+	XMStoreFloat4x4(m_obj5->GetMatrix(), XMMatrixTranslation(6.5f, 1.0, 0.0f));
+//	XMStoreFloat4x4(m_obj3->GetMatrix(), XMMatrixTranslation(3.0f, 1.08f, 0.0f));
+
+	if (GetAsyncKeyState('E')) {
+		m_obj1->SetModelStatus(ModelObject::EXPLOSION);
+		state = true;
+	}
+	if (GetAsyncKeyState('R')) {
+		m_obj1->SetModelStatus(ModelObject::NORMAL);
+		state = false;
+	}
+	if (state)
+		timer++;
+	else
+		timer = 0;
+
+
+	static float roughness, metalness;
 
 	MatrixFactory::Inst().CountTimer(timer);
 
-	MatrixFactory::Inst().SetWorldMatrix(m_obj1->GetMatrix());
-	if (!modelArray[m_obj1->GetModelId()])
-		return false;
+	{
+		static float f;
+		static int counter;
+
+		ImGui::Begin("PBR_TEST");
+
+		ImGui::SliderFloat("roughness", &roughness, 0.0f, 1.0f);
+		ImGui::SliderFloat("metalness", &metalness, 0.0f, 1.0f);
+
+		if (ImGui::Button("Button"))
+			counter++;
+		ImGui::SameLine();
+		ImGui::Text("counter = %d", counter);
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
+	}
 
 	for (auto ite : objList) {
 		MatrixFactory::Inst().SetWorldMatrix(ite->GetMatrix());
-		if (!modelArray[ite->GetModelId()])
+		const shared_ptr<Model>& tmp = modelArray[ite->GetModelId()];
+		if (!tmp)
 			continue;
 
-		m_vs->SetShader();
-		m_ps->SetShader();
-		m_context->GSSetShader(NULL, 0, 0);
-		m_context->VSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
-		m_context->VSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
+		if (ite->GetStatus() == ModelObject::EXPLOSION) {
+			m_expvs->SetShader();
+			m_expgs->SetShader();
+			m_expps->SetShader();
+			m_context->VSSetConstantBuffers(0, 1, m_worldBuffer.GetAddressOf());
+			m_context->GSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
+			m_context->GSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
+			m_context->GSSetConstantBuffers(2, 1, m_timeBuffer.GetAddressOf());
+		}
+		else {
+			m_vs->SetShader(tmp->GetModelType());
+			m_ps->SetShader();
+			m_context->GSSetShader(NULL, 0, 0);
+			m_context->VSSetConstantBuffers(0, 1, m_viewBuffer.GetAddressOf());
+			m_context->VSSetConstantBuffers(1, 1, m_projBuffer.GetAddressOf());
+			m_context->VSSetConstantBuffers(2, 1, m_worldBuffer.GetAddressOf());
+			m_context->VSSetConstantBuffers(3, 1, m_shadowBuffer.GetAddressOf());
+			m_context->PSSetConstantBuffers(1, 1, m_dirLightBuffer.GetAddressOf());
+		}
 		for (int i = 0; i < modelArray[ite->GetModelId()]->GetMeshCount(); i++) {
-			MatrixFactory::Inst().SetMaterial(
-				modelArray[ite->GetModelId()]->GetDiffuse(i),
-				modelArray[ite->GetModelId()]->GetAmbient(i),
-				modelArray[ite->GetModelId()]->GetSpecular(i));
-			m_inputSrv[0] = modelArray[ite->GetModelId()]->GetTexture(i);
+/*			Environment::Inst().SetMaterial(
+				materialArray[modelArray[ite->GetModelId()]->GetMaterialId()].GetAlbedo(),
+				materialArray[modelArray[ite->GetModelId()]->GetMaterialId()].GetMetalness(),
+				materialArray[modelArray[ite->GetModelId()]->GetMaterialId()].GetRoughness());*/
+
+			Environment::Inst().SetMaterial(
+								materialArray[tmp->GetMaterialId()].GetAlbedo(),
+								metalness,
+								roughness);
+			m_inputSrv[0] = NULL;
 			m_context->PSSetShaderResources(0, m_inputSrvNum, m_inputSrv);
 			m_context->PSSetConstantBuffers(0, 1, m_materialBuffer.GetAddressOf());
 			modelArray[ite->GetModelId()]->SetBuffer(i);
-			m_context->VSSetConstantBuffers(2, 1, m_worldBuffer.GetAddressOf());
 			m_context->DrawIndexed(modelArray[ite->GetModelId()]->GetIndexCount(i), 0, 0);
 		}
 	}
-
-	m_camera.Run();
 
 	m_context->ClearState();
 
@@ -179,28 +279,17 @@ bool ModelPass::Rendering() {
 	float blendFactor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 //	m_context->OMSetBlendState(m_blendState.Get(), blendFactor, 0xffffffff);
 
-	m_context->ClearState();
 
-	m_context->OMSetRenderTargets(1, m_rtv->GetAddressOf(), m_dsv.Get());
-	
-	m_context->RSSetState(m_rasterState.Get());
-	m_context->RSSetViewports(1, &m_viewport);
 
-	shared_ptr<Model> backModel;
-	ModelFactory::Inst().GetBackgroundModel(backModel);
-
-	m_cubemapvs->SetShader();
-	m_cubemapps->SetShader();
-
+	MatrixFactory::Inst().SetWorldMatrix(m_camera.GetInvViewMatrix());
+	MatrixFactory::Inst().SetViewMatrix(m_camera.GetViewMatrix());
 	MatrixFactory::Inst().SetVPMatrix(m_camera.GetViewProjMatrix());
-	
-	m_context->VSSetConstantBuffers(0, 1, m_vpBuffer.GetAddressOf());
 
-	m_context->PSSetShaderResources(0, 1, m_cubeMapSrv.GetAddressOf());
-	m_context->PSSetSamplers(0, 1, m_wrapSampler.GetAddressOf());
+	Environment::Inst().SetDirectionalLight(XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f), m_camera.GetViewMatrix());
 
-	backModel->SetBuffer(0);
-	m_context->DrawIndexed(backModel->GetIndexCount(0), 0, 0);
+
+	m_camera.Run();
+
 
 	return true;
 }
@@ -240,15 +329,57 @@ bool ModelPass::InitColorTexture() {
 		return false;
 	}
 
-	res = m_device->CreateRenderTargetView(tex.Get(), &rtvDesc, m_rtv[COLOR_TEX].ReleaseAndGetAddressOf());
+	res = m_device->CreateRenderTargetView(tex.Get(), &rtvDesc, m_rtv[ALBEDO_TEX].ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating color rtv.", "ModelPass.cpp", MB_OK);
 		return false;
 	}
 
-	res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_outputSrv[COLOR_TEX].ReleaseAndGetAddressOf());
+	res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_outputSrv[ALBEDO_TEX].ReleaseAndGetAddressOf());
 	if (FAILED(res)) {
 		MessageBox(NULL, "failed creating color srv.", "ModelPass.cpp", MB_OK);
+		return false;
+	}
+
+	texDesc.Format = DXGI_FORMAT_R16_FLOAT;
+
+	rtvDesc.Format = texDesc.Format;
+
+	srvDesc.Format = texDesc.Format;
+
+	res = m_device->CreateTexture2D(&texDesc, NULL, tex.ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating metalness buffer.", "ModelPass.cpp", MB_OK);
+		return false;
+	}
+
+	res = m_device->CreateRenderTargetView(tex.Get(), &rtvDesc, m_rtv[METALNESS_TEX].ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating metalness rtv.", "ModelPass.cpp", MB_OK);
+		return false;
+	}
+
+	res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_outputSrv[METALNESS_TEX].ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating metalness srv.", "ModelPass.cpp", MB_OK);
+		return false;
+	}
+
+	res = m_device->CreateTexture2D(&texDesc, NULL, tex.ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating roughness buffer.", "ModelPass.cpp", MB_OK);
+		return false;
+	}
+
+	res = m_device->CreateRenderTargetView(tex.Get(), &rtvDesc, m_rtv[ROUGHNESS_TEX].ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating roughness rtv.", "ModelPass.cpp", MB_OK);
+		return false;
+	}
+
+	res = m_device->CreateShaderResourceView(tex.Get(), &srvDesc, m_outputSrv[ROUGHNESS_TEX].ReleaseAndGetAddressOf());
+	if (FAILED(res)) {
+		MessageBox(NULL, "failed creating roughness srv.", "ModelPass.cpp", MB_OK);
 		return false;
 	}
 

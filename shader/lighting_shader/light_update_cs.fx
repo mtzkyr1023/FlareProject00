@@ -14,11 +14,17 @@ cbuffer Camera : register(b0) {
 void cs_main(uint3 id : SV_DispatchThreadID) {
 	PointLight tmp = g_pointLight[id.x];
 
-	if (id.x == 48) {
-		tmp.position.x = sin(tmp.color.a) * 4.0f;
-		tmp.position.z = cos(tmp.color.a) * 4.0f;
-		tmp.color.a += 0.025f;
+	if (id.x % 2 == 0) {
+		tmp.position.x += tmp.color.a;
 	}
+	else {
+		tmp.position.z += tmp.color.a;
+	}
+	
+	if (tmp.position.x > 25.0f || tmp.position.x < -25.0f)
+		tmp.color.a *= -1.0f;
+	if (tmp.position.z > 25.0f || tmp.position.z < -25.0f)
+		tmp.color.a *= -1.0f;
 
 	tmp.viewPos = mul(float4(tmp.position, 1.0f), g_viewMatrix);
 

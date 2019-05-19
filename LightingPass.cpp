@@ -2,6 +2,7 @@
 #include "LightingShader.h"
 #include "LightBuffer.h"
 #include "MatrixBuffer.h"
+#include "Environment.h"
 #include "shader/shader_defines.h"
 
 using namespace std;
@@ -28,6 +29,8 @@ bool LightingPass::InitPass() {
 
 	m_viewBuffer = MatrixFactory::Inst().GetViewBuffer();
 	m_projBuffer = MatrixFactory::Inst().GetProjBuffer();
+
+	m_dirLightBuffer = Environment::Inst().GetDirLightBuffer();
 
 	return true;
 }

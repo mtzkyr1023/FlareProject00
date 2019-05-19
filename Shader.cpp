@@ -88,7 +88,7 @@ bool ComputeShader::Initialize(LPCWSTR filename, LPCSTR entryPoint) {
 	res = ShaderCompiler::CompileFromFile(filename, entryPoint, "cs_5_0", CSBlob.GetAddressOf(),
 		errorMessage.GetAddressOf());
 	if (FAILED(res)) {
-		ShaderCompiler::OutputErrorMessage(errorMessage.Get(), "shader/shader_errors/");
+		ShaderCompiler::OutputErrorMessage(errorMessage.Get(), "shader_errors/");
 		return false;
 	}
 

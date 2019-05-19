@@ -17,6 +17,8 @@ private:
 	ComPtr<ID3D11Buffer> m_viewBuffer;
 	ComPtr<ID3D11Buffer> m_projBuffer;
 
+	ComPtr<ID3D11Buffer> m_dirLightBuffer;
+
 private:
 	bool InitResultTex();
 
