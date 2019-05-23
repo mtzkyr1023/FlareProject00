@@ -29,6 +29,23 @@ float G_CookTorrance(float3 L, float3 V, float3 H, float3 N) {
     float NH2 = 2.0 * NH;
     float g1 = (NH2 * NV) / VH;
     float g2 = (NH2 * NL) / VH;
-    float G = min(1.0, min(g1, g2));
+    float G = min(1.0f, min(g1, g2));
     return G;
+}
+
+float4 CubeMapBlur(TextureCube tex, SamplerState Sampler, float3 refV, float level) {
+	float3 blurPower[10];
+	float4 ret = (float4)0;
+	int i;
+	
+	[unroll]
+	for (i = -5; i < 5; i++) {
+		blurPower[i + 5] = refV + float3((float)i * level, -(float)i * level, (float)i * level);
+	}
+	
+	for (i = 0; i < 10; i++) {
+		ret += tex.Sample(Sampler, blurPower[i]);
+	}
+	
+	return ret / 10.0f * (1.0f - level);
 }

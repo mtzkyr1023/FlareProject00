@@ -8,14 +8,14 @@ using namespace DirectX;
 bool Camera::Run() {
 	static float x, y, z;
 
-	if (GetAsyncKeyState(VK_LEFT))
+/*	if (GetAsyncKeyState(VK_LEFT))
 		m_horizontal -= 0.03f;
 	if (GetAsyncKeyState(VK_RIGHT))
 		m_horizontal += 0.03f;
 	if (GetAsyncKeyState(VK_UP))
 		m_vertical += 0.03f;
 	if (GetAsyncKeyState(VK_DOWN))
-		m_vertical -= 0.03f;
+		m_vertical -= 0.03f;*/
 
 	if (GetAsyncKeyState('W')) {
 		x -= sinf(m_horizontal) * 0.15f;

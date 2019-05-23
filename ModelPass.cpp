@@ -95,14 +95,14 @@ bool ModelPass::InitPass() {
 
 	m_dirLightBuffer = Environment::Inst().GetDirLightBuffer();
 
-	ModelFactory::Inst().CreateStaticModel("res/model/monkey_flat.obj", 0);
+	ModelFactory::Inst().CreateStaticModel("res/model/monkey_smooth.obj", 0);
 	ModelFactory::Inst().CreateStaticModel("res/model/sphere.obj", 1);
 	ModelFactory::Inst().CreateStaticModel("res/model/Cube_quad.obj", 2);
 	ModelFactory::Inst().CreateStaticModel("res/model/water.obj", 3);
 
 	ModelFactory::Inst().CreateBackgroundModel("res/model/CubeMap.obj");
 
-	Environment::Inst().LoadCubeMap("tex/CubeMap01/");
+	Environment::Inst().LoadCubeMap("tex/CubeMap04/");
 
 	m_cubeMapSrv = Environment::Inst().GetCubeMap();
 
@@ -112,6 +112,8 @@ bool ModelPass::InitPass() {
 	m_obj3 = make_unique<ModelObject>(2);
 	m_obj4 = make_unique<ModelObject>(1);
 	m_obj5 = make_unique<ModelObject>(2);
+
+	m_player = make_unique<TestPlayer>();
 
 	return true;
 }
@@ -285,11 +287,11 @@ bool ModelPass::Rendering() {
 	MatrixFactory::Inst().SetViewMatrix(m_camera.GetViewMatrix());
 	MatrixFactory::Inst().SetVPMatrix(m_camera.GetViewProjMatrix());
 
-	Environment::Inst().SetDirectionalLight(XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f), m_camera.GetViewMatrix());
+	Environment::Inst().SetDirectionalLight(XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0.25f, 0.25f, 0.25f), m_camera.GetViewMatrix());
 
 
 	m_camera.Run();
-
+	m_player->Run();
 
 	return true;
 }

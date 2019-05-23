@@ -19,6 +19,7 @@
 #include "Material.h"
 #include "Object.h"
 #include "Camera.h"
+#include "TestPlayer.h"
 
 class ModelPass : public RenderPass {
 private:
@@ -63,6 +64,7 @@ private:
 	ComPtr<ID3D11SamplerState> m_clampSampler;
 
 	std::unique_ptr<ModelObject> m_obj1, m_obj2, m_obj3, m_obj4, m_obj5;
+	std::unique_ptr<TestPlayer> m_player;
 	Camera m_camera;
 
 private:

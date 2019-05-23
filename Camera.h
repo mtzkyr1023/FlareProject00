@@ -39,6 +39,8 @@ public:
 	DirectX::XMFLOAT4X4* GetViewProjMatrix() { return &m_viewProjMatrix; }
 	DirectX::XMFLOAT4X4* GetInvViewMatrix() { return &m_invViewMatrix; }
 
+	void SetFocus(DirectX::XMFLOAT3 focus) { m_focus = focus; }
+
 	bool Run();
 };
 

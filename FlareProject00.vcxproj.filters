@@ -237,6 +237,9 @@
     <ClInclude Include="ReflecetPass.h">
       <Filter>ヘッダー ファイル\RenderPass</Filter>
     </ClInclude>
+    <ClInclude Include="TestPlayer.h">
+      <Filter>ヘッダー ファイル\Resource\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameMain.cpp">
@@ -352,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="ReflectPass.cpp">
       <Filter>ソース ファイル\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="TestPlayer.cpp">
+      <Filter>ソース ファイル\Resource\Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

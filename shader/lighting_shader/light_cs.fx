@@ -7,6 +7,10 @@
 #include "../shader_structues.h"
 #include "../shader_func/pbr_func.hlsli"
 
+float linstep(float min, float max, float v) {
+    return saturate((v - min) / (max - min));
+}
+
 RWTexture2D<float4> g_dst : register(u0);
 Texture2D<float4> g_color : register(t0);
 Texture2D<float4> g_normal : register(t1);
@@ -120,24 +124,33 @@ void cs_main(uint3 threadId :  SV_DispatchThreadID, uint3 groupId : SV_GroupID, 
 	float G = 0;
 	float4 color = g_color[threadId.xy];
 	lit = color.rgb;
+	float3 diffuse = (float3)0;
+	float3 specular = (float3)0;
+	float3 invVPos = float3(vPos.x, -vPos.y, vPos.z);
 	V = -normalize(vPos);
+	float atten = 0.0f;
 	
 	if (numLights > 0) {
 		float4 normal = g_normal[threadId.xy];
 		for (uint tileLightIndex = 0; tileLightIndex < numLights; tileLightIndex++) {
 			PointLight light = g_pointLight[s_tileLightIndices[tileLightIndex]];
-			lightLength = distance(vPos, light.viewPos.xyz);
-			lightLength = rcp(lightLength * lightLength * 2 + lightLength * 2 + 1);
+			lightLength = length(vPos - light.viewPos.xyz);
+			atten = 0;
+			if (lightLength < light.range) {
+				atten = linstep(light.range, 0.0f, lightLength);
+			};
 			intensity = saturate(dot(-normalize(vPos - light.viewPos.xyz), normal.xyz));
-			L = (-normalize(vPos - light.viewPos.xyz));
-			H = normalize(L + V);
+			L = (normalize(light.viewPos.xyz - vPos));
+			H = normalize(V + L);
 			D = GGX(roughness, N, H);
 			F = Flesnel(metalness, V, H);
 			G = G_CookTorrance(L, V, H, N);
-			float angleLN = saturate(dot(L, N));
-			reflection = (D * F * G) / (4 * saturate(dot(V, N)) * saturate(dot(L, N)) + 0.000001f);
-//			reflection = pow(saturate(dot(normal.xyz, H)), 10.0f);
-			lit += intensity * light.color.rgb * lightLength + light.color.rgb * reflection;
+//			reflection = (D * F * G) / (4 * saturate(dot(V, N)) * saturate(dot(L, N)) + 0.000001f);
+			reflection = D * G;
+//			reflection = pow(saturate(dot(normal.xyz, H)), 5.0f);
+			diffuse = intensity * light.color.rgb * atten;
+			specular = light.color.rgb * reflection * atten;
+			lit += diffuse + specular;
 //			lit += light.color.rgb * intensity * lightLength;
 //			lit += float3(reflection, reflection, reflection);
 			lit = saturate(lit);

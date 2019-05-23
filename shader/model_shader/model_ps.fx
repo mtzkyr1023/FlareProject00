@@ -65,8 +65,8 @@ PS_OUT ps_main(PS_IN input) {
 	float alpha = max(angleL, angleV);
 	float beta = min(angleL, angleV);
 	float intensity = max(0.0f, dotL) * (A + (B * max(0, cos(angleL - angleV) * gamma * sin(alpha) * tan(beta))));
-//	intensity = intensity * .5f + 0.5f;
-//	intensity *= intensity;
+	intensity = intensity * 0.5f + 0.5f;
+	intensity *= intensity;
 	
 	float2 shadowUV;
 	shadowUV.x = (1.0f + (input.shadowPos.x)) * 0.5f;
@@ -92,8 +92,10 @@ PS_OUT ps_main(PS_IN input) {
 
 //	output.color = diffuse * intensity;
 
-//	output.color = saturate(diffuse * g_lightColor * intensity + g_lightColor * reflection * cubeTex.Sample(SampleType, normalize(reflect(-V, N))));
-	output.color = diffuse * g_lightColor * intensity + g_lightColor * reflection;
+	output.color = saturate(diffuse * g_lightColor * intensity + g_lightColor * reflection + intensity * CubeMapBlur(cubeTex, SampleType, normalize(reflect(-V, N)), roughness * 0.04f) * metalness);
+//	output.color = diffuse * g_lightColor * intensity + g_lightColor * reflection;
+
+//	output.color = CubeMapBlur(cubeTex, SampleType, normalize(reflect(-V, N)), roughness * 0.02f);
 
 //	output.color = float4(intensity, intensity, intensity, 1);
 

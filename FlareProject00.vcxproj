@@ -163,6 +163,7 @@
     <ClInclude Include="ShadowPass.h" />
     <ClInclude Include="ShadowShader.h" />
     <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="TestPlayer.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="WaterShader.h" />
     <ClInclude Include="WICTextureLoader.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="ShadowPass.cpp" />
     <ClCompile Include="ShadowShader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="TestPlayer.cpp" />
     <ClCompile Include="WaterShader.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
     <ClCompile Include="WinMain.cpp" />
